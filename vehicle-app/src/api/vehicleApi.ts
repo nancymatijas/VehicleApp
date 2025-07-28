@@ -15,7 +15,14 @@ export type VehicleModel = {
 };
 
 export type VehicleModelWithMake = VehicleModel & {
-  VehicleMake: { name: string };
+  VehicleMake: { name: string } | null;
+};
+
+export type SortField = 'id' | 'name' | 'abrv';
+export type SortDirection = 'asc' | 'desc';
+export type SortParams = {
+  field: SortField;
+  direction: SortDirection;
 };
 
 export const vehicleApi = createApi({
@@ -23,14 +30,14 @@ export const vehicleApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ['VehicleMake', 'VehicleModel'],
   endpoints: (builder) => ({
-
-    getVehicleMakes: builder.query<VehicleMake[], void>({
-      async queryFn() {
+    getVehicleMakes: builder.query<VehicleMake[], SortParams | void>({
+      async queryFn(sortParams) {
+        const field = sortParams?.field || 'id';
+        const direction = sortParams?.direction === 'desc' ? false : true;
         const { data, error } = await supabase
           .from('VehicleMake')
           .select('*')
-          .order('id');
-
+          .order(field, { ascending: direction });
         if (error) return { error };
         return { data: data as VehicleMake[] };
       },
@@ -67,7 +74,7 @@ export const vehicleApi = createApi({
 
     deleteVehicleMake: builder.mutation<{ id: number }, number>({
       async queryFn(id) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('VehicleMake')
           .delete()
           .eq('id', id)
@@ -79,8 +86,9 @@ export const vehicleApi = createApi({
       invalidatesTags: ['VehicleMake'],
     }),
 
-    getVehicleModels: builder.query<VehicleModelWithMake[], void>({
-      async queryFn() {
+    getVehicleModels: builder.query<VehicleModelWithMake[], SortField | void>({
+      async queryFn(sortField) {
+        const orderBy = sortField || 'id';
         const { data, error } = await supabase
           .from('VehicleModel')
           .select(`
@@ -90,13 +98,16 @@ export const vehicleApi = createApi({
             make_id,
             VehicleMake(name)
           `)
-          .order('id');
+          .order(orderBy as string);
 
         if (error) return { error };
 
         const mappedData = data?.map((item) => ({
           ...item,
-          VehicleMake: item.VehicleMake && item.VehicleMake.length > 0 ? item.VehicleMake[0] : null,
+          VehicleMake:
+            Array.isArray(item.VehicleMake) && item.VehicleMake.length > 0
+              ? item.VehicleMake[0]
+              : null,
         })) || [];
 
         return { data: mappedData as VehicleModelWithMake[] };
@@ -134,7 +145,7 @@ export const vehicleApi = createApi({
 
     deleteVehicleModel: builder.mutation<{ id: number }, number>({
       async queryFn(id) {
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('VehicleModel')
           .delete()
           .eq('id', id)

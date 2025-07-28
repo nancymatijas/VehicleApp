@@ -5,10 +5,30 @@ import {
   useUpdateVehicleMakeMutation,
   useDeleteVehicleMakeMutation,
   VehicleMake,
+  SortField,
+  SortDirection,
+  SortParams,
 } from '../api/vehicleApi';
+import SortSelect, { SortOption } from '../components/SortSelect';
+
+const sortOptions: SortOption[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'abrv', label: 'Abbreviation' },
+  { value: 'id', label: 'ID' },
+];
+
+const directionOptions: SortOption[] = [
+  { value: 'asc', label: 'ASC' },
+  { value: 'desc', label: 'DESC' },
+];
 
 const VehicleMakeComponent: React.FC = () => {
-  const { data: makes, error, isLoading } = useGetVehicleMakesQuery();
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDir, setSortDir] = useState<SortDirection>('asc');
+
+  const sortParams: SortParams = { field: sortField, direction: sortDir };
+  const { data: makes, error, isLoading } = useGetVehicleMakesQuery(sortParams);
+
   const [createVehicleMake, { isLoading: isCreating }] = useCreateVehicleMakeMutation();
   const [updateVehicleMake, { isLoading: isUpdating }] = useUpdateVehicleMakeMutation();
   const [deleteVehicleMake, { isLoading: isDeleting }] = useDeleteVehicleMakeMutation();
@@ -21,12 +41,15 @@ const VehicleMakeComponent: React.FC = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const onSortChange = (value: string) => setSortField(value as SortField);
+  const onDirChange = (value: string) => setSortDir(value as SortDirection);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!form.name.trim()) {
-      setErrorMessage('Naziv je obavezan.');
+      setErrorMessage('Name is required.');
       return;
     }
 
@@ -39,7 +62,7 @@ const VehicleMakeComponent: React.FC = () => {
       }
       setForm({ name: '', abrv: '' });
     } catch {
-      setErrorMessage('Greška pri čuvanju podataka.');
+      setErrorMessage('Error saving data.');
     }
   };
 
@@ -55,26 +78,25 @@ const VehicleMakeComponent: React.FC = () => {
   };
 
   const onDelete = async (id: number) => {
-    if (window.confirm('Jeste li sigurni da želite obrisati ovaj proizvođač?')) {
+    if (window.confirm('Are you sure you want to delete this manufacturer?')) {
       try {
         await deleteVehicleMake(id).unwrap();
       } catch {
-        alert('Greška pri brisanju');
+        alert('Error deleting the manufacturer.');
       }
     }
   };
 
-  if (error) {
-    return <div>Greška pri učitavanju proizvođača.</div>;
-  }
-
-  if (isLoading) {
-    return <div>Učitavanje proizvođača...</div>;
-  }
+  if (error) return <div>Error loading manufacturers.</div>;
+  if (isLoading) return <div>Loading manufacturers...</div>;
 
   return (
     <div>
-      <h2>Vehicle Makes</h2>
+      <h2>Vehicle Manufacturers</h2>
+      <div style={{ display: 'flex', gap: 16 }}>
+        <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
+        <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
+      </div>
 
       {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
 
@@ -82,7 +104,7 @@ const VehicleMakeComponent: React.FC = () => {
         <input
           type="text"
           name="name"
-          placeholder="Naziv"
+          placeholder="Name"
           value={form.name}
           onChange={onChange}
           required
@@ -91,17 +113,17 @@ const VehicleMakeComponent: React.FC = () => {
         <input
           type="text"
           name="abrv"
-          placeholder="Skraćenica"
+          placeholder="Abbreviation"
           value={form.abrv}
           onChange={onChange}
           style={{ marginRight: '10px' }}
         />
         <button type="submit" disabled={isCreating || isUpdating}>
-          {editId === null ? 'Dodaj' : 'Spremi'}
+          {editId === null ? 'Add' : 'Save'}
         </button>
         {editId !== null && (
           <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }}>
-            Odustani
+            Cancel
           </button>
         )}
       </form>
@@ -110,9 +132,9 @@ const VehicleMakeComponent: React.FC = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Naziv</th>
-            <th>Skraćenica</th>
-            <th>Akcije</th>
+            <th>Name</th>
+            <th>Abbreviation</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -123,19 +145,25 @@ const VehicleMakeComponent: React.FC = () => {
               <td>{make.abrv}</td>
               <td>
                 <button onClick={() => onEdit(make)} disabled={isDeleting || isCreating || isUpdating}>
-                  Uredi
+                  Edit
                 </button>{' '}
                 <button
                   onClick={() => onDelete(make.id)}
                   disabled={isDeleting || isCreating || isUpdating}
                   style={{ color: 'red' }}
                 >
-                  Obriši
+                  Delete
                 </button>
               </td>
             </tr>
           ))}
-          {!makes?.length && <tr><td colSpan={4} style={{ textAlign: 'center' }}>Nema proizvođača</td></tr>}
+          {!makes?.length && (
+            <tr>
+              <td colSpan={4} style={{ textAlign: 'center' }}>
+                No manufacturers
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
