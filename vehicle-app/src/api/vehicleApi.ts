@@ -20,6 +20,7 @@ export type VehicleModelWithMake = VehicleModel & {
 
 export type SortField = 'id' | 'name' | 'abrv';
 export type SortDirection = 'asc' | 'desc';
+
 export type SortParams = {
   field: SortField;
   direction: SortDirection;
@@ -30,14 +31,18 @@ export const vehicleApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ['VehicleMake', 'VehicleModel'],
   endpoints: (builder) => ({
+    // VehicleMake endpoints
+
     getVehicleMakes: builder.query<VehicleMake[], SortParams | void>({
       async queryFn(sortParams) {
         const field = sortParams?.field || 'id';
-        const direction = sortParams?.direction === 'desc' ? false : true;
+        const ascending = sortParams?.direction !== 'desc';
+
         const { data, error } = await supabase
           .from('VehicleMake')
           .select('*')
-          .order(field, { ascending: direction });
+          .order(field, { ascending });
+
         if (error) return { error };
         return { data: data as VehicleMake[] };
       },
@@ -86,9 +91,13 @@ export const vehicleApi = createApi({
       invalidatesTags: ['VehicleMake'],
     }),
 
-    getVehicleModels: builder.query<VehicleModelWithMake[], SortField | void>({
-      async queryFn(sortField) {
-        const orderBy = sortField || 'id';
+    // VehicleModel endpoints
+
+    getVehicleModels: builder.query<VehicleModelWithMake[], SortParams | void>({
+      async queryFn(sortParams) {
+        const field = sortParams?.field || 'id';
+        const ascending = sortParams?.direction !== 'desc';
+
         const { data, error } = await supabase
           .from('VehicleModel')
           .select(`
@@ -98,10 +107,11 @@ export const vehicleApi = createApi({
             make_id,
             VehicleMake(name)
           `)
-          .order(orderBy as string);
+          .order(field, { ascending });
 
         if (error) return { error };
 
+        // Supabase vraća VehicleMake kao niz, mapiramo u objekt ili null
         const mappedData = data?.map((item) => ({
           ...item,
           VehicleMake:

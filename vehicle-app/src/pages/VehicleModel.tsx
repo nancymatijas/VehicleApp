@@ -6,10 +6,31 @@ import {
   useDeleteVehicleModelMutation,
   useGetVehicleMakesQuery,
   VehicleModel,
+  SortField,
+  SortDirection,
+  SortParams,
 } from '../api/vehicleApi';
+import SortSelect, { SortOption } from '../components/SortSelect';
+
+const sortOptions: SortOption[] = [
+  { value: 'name', label: 'Model Name' },
+  { value: 'abrv', label: 'Abbreviation' },
+  { value: 'id', label: 'ID' },
+  { value: 'make_id', label: 'Manufacturer' }
+];
+
+const directionOptions: SortOption[] = [
+  { value: 'asc', label: 'ASC' },
+  { value: 'desc', label: 'DESC' },
+];
 
 const VehicleModelComponent: React.FC = () => {
-  const { data: models, error, isLoading } = useGetVehicleModelsQuery();
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDir, setSortDir] = useState<SortDirection>('asc');
+
+  const sortParams: SortParams = { field: sortField, direction: sortDir };
+
+  const { data: models, error, isLoading } = useGetVehicleModelsQuery(sortParams);
   const { data: makes, isLoading: isLoadingMakes } = useGetVehicleMakesQuery();
 
   const [createVehicleModel, { isLoading: isCreating }] = useCreateVehicleModelMutation();
@@ -33,16 +54,19 @@ const VehicleModelComponent: React.FC = () => {
     }));
   };
 
+  const onSortChange = (value: string) => setSortField(value as SortField);
+  const onDirChange = (value: string) => setSortDir(value as SortDirection);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!form.name.trim()) {
-      setErrorMessage('Naziv modela je obavezan.');
+      setErrorMessage('Model name is required.');
       return;
     }
     if (!form.make_id || isNaN(form.make_id) || form.make_id === 0) {
-      setErrorMessage('Morate odabrati proizvođača.');
+      setErrorMessage('You must select a manufacturer.');
       return;
     }
 
@@ -55,7 +79,7 @@ const VehicleModelComponent: React.FC = () => {
       }
       setForm({ name: '', abrv: '', make_id: 0 });
     } catch {
-      setErrorMessage('Greška pri čuvanju podataka.');
+      setErrorMessage('Error saving data.');
     }
   };
 
@@ -71,65 +95,70 @@ const VehicleModelComponent: React.FC = () => {
   };
 
   const onDelete = async (id: number) => {
-    if (window.confirm('Jeste li sigurni da želite obrisati ovaj model?')) {
+    if (window.confirm('Are you sure you want to delete this model?')) {
       try {
         await deleteVehicleModel(id).unwrap();
       } catch {
-        alert('Greška pri brisanju modela');
+        alert('Error deleting model.');
       }
     }
   };
 
-  if (isLoading) return <div>Učitavanje modela...</div>;
-  if (error) return <div>Greška pri učitavanju modela.</div>;
+  if (isLoading) return <div>Loading models...</div>;
+  if (error) return <div>Error loading models.</div>;
 
   return (
     <div>
       <h2>Vehicle Models</h2>
 
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+        <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
+        <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
+      </div>
+
+      {errorMessage && <div style={{ color: 'red', marginBottom: 12 }}>{errorMessage}</div>}
 
       <form onSubmit={onSubmit} style={{ marginBottom: '20px' }}>
         <input
           type="text"
           name="name"
-          placeholder="Naziv modela"
+          placeholder="Model Name"
           value={form.name}
           onChange={onChange}
           required
           style={{ marginRight: '10px' }}
+          disabled={isLoading || isCreating || isUpdating}
         />
         <input
           type="text"
           name="abrv"
-          placeholder="Skraćenica"
+          placeholder="Abbreviation"
           value={form.abrv}
           onChange={onChange}
           style={{ marginRight: '10px' }}
+          disabled={isLoading || isCreating || isUpdating}
         />
         <select
           name="make_id"
           value={form.make_id}
           onChange={onChange}
           required
-          disabled={isLoadingMakes}
+          disabled={isLoadingMakes || isLoading || isCreating || isUpdating}
           style={{ marginRight: '10px' }}
         >
-          <option value={0}>Odaberite proizvođača</option>
+          <option value={0}>Select Manufacturer</option>
           {makes?.map((make) => (
             <option key={make.id} value={make.id}>
               {make.name}
             </option>
           ))}
         </select>
-
         <button type="submit" disabled={isCreating || isUpdating}>
-          {editId === null ? 'Dodaj' : 'Spremi'}
+          {editId === null ? 'Add' : 'Save'}
         </button>
-
         {editId !== null && (
           <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }}>
-            Odustani
+            Cancel
           </button>
         )}
       </form>
@@ -138,10 +167,10 @@ const VehicleModelComponent: React.FC = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Naziv modela</th>
-            <th>Skraćenica</th>
-            <th>Proizvođač</th>
-            <th>Akcije</th>
+            <th>Model Name</th>
+            <th>Abbreviation</th>
+            <th>Manufacturer</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -150,17 +179,17 @@ const VehicleModelComponent: React.FC = () => {
               <td>{model.id}</td>
               <td>{model.name}</td>
               <td>{model.abrv}</td>
-              <td>{model.VehicleMake?.name || 'Nepoznato'}</td>
+              <td>{model.VehicleMake?.name || 'Unknown'}</td>
               <td>
                 <button onClick={() => onEdit(model)} disabled={isDeleting || isCreating || isUpdating}>
-                  Uredi
+                  Edit
                 </button>{' '}
                 <button
                   onClick={() => onDelete(model.id)}
                   disabled={isDeleting || isCreating || isUpdating}
                   style={{ color: 'red' }}
                 >
-                  Obriši
+                  Delete
                 </button>
               </td>
             </tr>
@@ -168,7 +197,7 @@ const VehicleModelComponent: React.FC = () => {
           {!models?.length && (
             <tr>
               <td colSpan={5} style={{ textAlign: 'center' }}>
-                Nema modela
+                No models available
               </td>
             </tr>
           )}
