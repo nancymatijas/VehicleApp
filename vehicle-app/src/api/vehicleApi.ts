@@ -1,20 +1,21 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from './supabaseClient';
 
-// Tip za VehicleMake
 export type VehicleMake = {
   id: number;
   name: string;
   abrv: string;
 };
 
-// Tip za VehicleModel sa relacijom VehicleMake
-export type VehicleModelWithMake = {
+export type VehicleModel = {
   id: number;
   make_id: number;
   name: string;
   abrv: string;
-  VehicleMake: { name: string } | null;
+};
+
+export type VehicleModelWithMake = VehicleModel & {
+  VehicleMake: { name: string };
 };
 
 export const vehicleApi = createApi({
@@ -22,7 +23,7 @@ export const vehicleApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ['VehicleMake', 'VehicleModel'],
   endpoints: (builder) => ({
-    // Read (GET) – dohvat svih proizvođača
+
     getVehicleMakes: builder.query<VehicleMake[], void>({
       async queryFn() {
         const { data, error } = await supabase
@@ -36,7 +37,6 @@ export const vehicleApi = createApi({
       providesTags: ['VehicleMake'],
     }),
 
-    // Create (POST) – dodavanje novog proizvođača
     createVehicleMake: builder.mutation<VehicleMake, Omit<VehicleMake, 'id'>>({
       async queryFn(newMake) {
         const { data, error } = await supabase
@@ -50,7 +50,6 @@ export const vehicleApi = createApi({
       invalidatesTags: ['VehicleMake'],
     }),
 
-    // Update (PUT/PATCH) – ažuriranje postojeće stavke
     updateVehicleMake: builder.mutation<VehicleMake, VehicleMake>({
       async queryFn(updatedMake) {
         const { id, ...rest } = updatedMake;
@@ -66,7 +65,6 @@ export const vehicleApi = createApi({
       invalidatesTags: ['VehicleMake'],
     }),
 
-    // Delete (DELETE) – brisanje proizvođača po id-u
     deleteVehicleMake: builder.mutation<{ id: number }, number>({
       async queryFn(id) {
         const { data, error } = await supabase
@@ -81,7 +79,6 @@ export const vehicleApi = createApi({
       invalidatesTags: ['VehicleMake'],
     }),
 
-    // Read (GET) – dohvat modela sa pripadajućim imenom proizvođača
     getVehicleModels: builder.query<VehicleModelWithMake[], void>({
       async queryFn() {
         const { data, error } = await supabase
@@ -97,7 +94,6 @@ export const vehicleApi = createApi({
 
         if (error) return { error };
 
-        // mapiranje VehicleMake iz niza u objekat ili null
         const mappedData = data?.map((item) => ({
           ...item,
           VehicleMake: item.VehicleMake && item.VehicleMake.length > 0 ? item.VehicleMake[0] : null,
@@ -107,6 +103,48 @@ export const vehicleApi = createApi({
       },
       providesTags: ['VehicleModel'],
     }),
+
+    createVehicleModel: builder.mutation<VehicleModel, Omit<VehicleModel, 'id'>>({
+      async queryFn(newModel) {
+        const { data, error } = await supabase
+          .from('VehicleModel')
+          .insert([newModel])
+          .single();
+
+        if (error) return { error };
+        return { data: data as VehicleModel };
+      },
+      invalidatesTags: ['VehicleModel'],
+    }),
+
+    updateVehicleModel: builder.mutation<VehicleModel, VehicleModel>({
+      async queryFn(updatedModel) {
+        const { id, ...rest } = updatedModel;
+        const { data, error } = await supabase
+          .from('VehicleModel')
+          .update(rest)
+          .eq('id', id)
+          .single();
+
+        if (error) return { error };
+        return { data: data as VehicleModel };
+      },
+      invalidatesTags: ['VehicleModel'],
+    }),
+
+    deleteVehicleModel: builder.mutation<{ id: number }, number>({
+      async queryFn(id) {
+        const { data, error } = await supabase
+          .from('VehicleModel')
+          .delete()
+          .eq('id', id)
+          .single();
+
+        if (error) return { error };
+        return { data: { id } };
+      },
+      invalidatesTags: ['VehicleModel'],
+    }),
   }),
 });
 
@@ -115,5 +153,9 @@ export const {
   useCreateVehicleMakeMutation,
   useUpdateVehicleMakeMutation,
   useDeleteVehicleMakeMutation,
+
   useGetVehicleModelsQuery,
+  useCreateVehicleModelMutation,
+  useUpdateVehicleModelMutation,
+  useDeleteVehicleModelMutation,
 } = vehicleApi;
