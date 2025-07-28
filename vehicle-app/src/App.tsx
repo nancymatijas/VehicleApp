@@ -1,18 +1,21 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import VehicleMake from './pages/VehicleMake';
-import VehicleModel from './pages/VehicleModel';
+import NavBar from './components/Navbar';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import VehicleMakeComponent from './pages/VehicleMake';
+import VehicleModelComponent from './pages/VehicleModel';
+import VehiclePage from './pages/VehiclePage';
 
-const App: React.FC = () => {
-  return (
-    <BrowserRouter>
+const App: React.FC = () => (
+  <Router>
+    <NavBar />
+    <div style={{ paddingTop: 50 }}>
       <Routes>
-        <Route path="/makes" element={<VehicleMake />} />
-        <Route path="/models" element={<VehicleModel />} />
-        <Route path="*" element={<div>Stranica nije pronađena.</div>} />
+        <Route path="/" element={<VehiclePage />} />
+        <Route path="/vehicle-makes" element={<VehicleMakeComponent />} />
+        <Route path="/vehicle-models" element={<VehicleModelComponent />} />
       </Routes>
-    </BrowserRouter>
-  );
-};
+    </div>
+  </Router>
+);
 
 export default App;

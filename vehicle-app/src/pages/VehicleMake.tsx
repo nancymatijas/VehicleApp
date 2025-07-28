@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleMakesQuery,
   useCreateVehicleMakeMutation,
@@ -26,6 +27,7 @@ const directionOptions: SortOption[] = [
 ];
 
 const VehicleMakeComponent: React.FC = () => {
+  const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [page, setPage] = useState<number>(1);
@@ -119,7 +121,15 @@ const VehicleMakeComponent: React.FC = () => {
   if (isLoading) return <div>Loading manufacturers...</div>;
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
+
+      <button 
+        onClick={() => navigate('/')}
+        style={{ marginBottom: 16, padding: '8px 16px', cursor: 'pointer' }}
+      >
+        Back to Homepage
+      </button>
+
       <h2>Vehicle Manufacturers</h2>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
