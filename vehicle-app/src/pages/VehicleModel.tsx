@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useGetVehicleModelsQuery,
   useCreateVehicleModelMutation,
@@ -11,12 +11,13 @@ import {
   SortParams,
 } from '../api/vehicleApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
+import PaginationControl from '../components/PaginationControl';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
   { value: 'abrv', label: 'Abbreviation' },
   { value: 'id', label: 'ID' },
-  { value: 'make_id', label: 'Manufacturer' }
+  { value: 'make_id', label: 'Manufacturer' },
 ];
 
 const directionOptions: SortOption[] = [
@@ -28,7 +29,15 @@ const VehicleModelComponent: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
 
-  const sortParams: SortParams = { field: sortField, direction: sortDir };
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(5);
+
+  const sortParams: SortParams & { page: number; pageSize: number } = {
+    field: sortField,
+    direction: sortDir,
+    page,
+    pageSize,
+  };
 
   const { data: models, error, isLoading } = useGetVehicleModelsQuery(sortParams);
   const { data: makes, isLoading: isLoadingMakes } = useGetVehicleMakesQuery();
@@ -46,6 +55,10 @@ const VehicleModelComponent: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    setPage(1);
+  }, [sortField, sortDir, pageSize]);
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -56,6 +69,8 @@ const VehicleModelComponent: React.FC = () => {
 
   const onSortChange = (value: string) => setSortField(value as SortField);
   const onDirChange = (value: string) => setSortDir(value as SortDirection);
+
+  const onPageSizeChange = (size: number) => setPageSize(size);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +119,13 @@ const VehicleModelComponent: React.FC = () => {
     }
   };
 
+  const onPrevPage = () => setPage((p) => Math.max(1, p - 1));
+  const onNextPage = () => {
+    if (models && models.length === pageSize) {
+      setPage((p) => p + 1);
+    }
+  };
+
   if (isLoading) return <div>Loading models...</div>;
   if (error) return <div>Error loading models.</div>;
 
@@ -111,6 +133,7 @@ const VehicleModelComponent: React.FC = () => {
     <div>
       <h2>Vehicle Models</h2>
 
+      {/* Sorting controls */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
         <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
         <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
@@ -118,7 +141,7 @@ const VehicleModelComponent: React.FC = () => {
 
       {errorMessage && <div style={{ color: 'red', marginBottom: 12 }}>{errorMessage}</div>}
 
-      <form onSubmit={onSubmit} style={{ marginBottom: '20px' }}>
+      <form onSubmit={onSubmit} style={{ marginBottom: 20 }}>
         <input
           type="text"
           name="name"
@@ -126,7 +149,7 @@ const VehicleModelComponent: React.FC = () => {
           value={form.name}
           onChange={onChange}
           required
-          style={{ marginRight: '10px' }}
+          style={{ marginRight: 10 }}
           disabled={isLoading || isCreating || isUpdating}
         />
         <input
@@ -135,7 +158,7 @@ const VehicleModelComponent: React.FC = () => {
           placeholder="Abbreviation"
           value={form.abrv}
           onChange={onChange}
-          style={{ marginRight: '10px' }}
+          style={{ marginRight: 10 }}
           disabled={isLoading || isCreating || isUpdating}
         />
         <select
@@ -144,7 +167,7 @@ const VehicleModelComponent: React.FC = () => {
           onChange={onChange}
           required
           disabled={isLoadingMakes || isLoading || isCreating || isUpdating}
-          style={{ marginRight: '10px' }}
+          style={{ marginRight: 10 }}
         >
           <option value={0}>Select Manufacturer</option>
           {makes?.map((make) => (
@@ -157,7 +180,7 @@ const VehicleModelComponent: React.FC = () => {
           {editId === null ? 'Add' : 'Save'}
         </button>
         {editId !== null && (
-          <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }}>
+          <button type="button" onClick={onCancelEdit} style={{ marginLeft: 10 }}>
             Cancel
           </button>
         )}
@@ -203,6 +226,16 @@ const VehicleModelComponent: React.FC = () => {
           )}
         </tbody>
       </table>
+
+      <PaginationControl
+        page={page}
+        pageSize={pageSize}
+        onPrev={onPrevPage}
+        onNext={onNextPage}
+        disablePrev={page === 1}
+        disableNext={!models || models.length < pageSize}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useGetVehicleMakesQuery,
   useCreateVehicleMakeMutation,
@@ -10,6 +10,7 @@ import {
   SortParams,
 } from '../api/vehicleApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
+import PaginationControl from '../components/PaginationControl';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -26,8 +27,17 @@ const VehicleMakeComponent: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
 
-  const sortParams: SortParams = { field: sortField, direction: sortDir };
-  const { data: makes, error, isLoading } = useGetVehicleMakesQuery(sortParams);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(5);
+
+  const queryParams: SortParams & { page: number; pageSize: number } = {
+    field: sortField,
+    direction: sortDir,
+    page,
+    pageSize,
+  };
+
+  const { data: makes, error, isLoading } = useGetVehicleMakesQuery(queryParams);
 
   const [createVehicleMake, { isLoading: isCreating }] = useCreateVehicleMakeMutation();
   const [updateVehicleMake, { isLoading: isUpdating }] = useUpdateVehicleMakeMutation();
@@ -37,12 +47,20 @@ const VehicleMakeComponent: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    setPage(1);
+  }, [sortField, sortDir, pageSize]);
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const onSortChange = (value: string) => setSortField(value as SortField);
   const onDirChange = (value: string) => setSortDir(value as SortDirection);
+
+  const onPageSizeChange = (size: number) => {
+    setPageSize(size);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,18 +105,26 @@ const VehicleMakeComponent: React.FC = () => {
     }
   };
 
+  const onPrevPage = () => setPage((p) => Math.max(1, p - 1));
+  const onNextPage = () => {
+    if (makes && makes.length === pageSize) {
+      setPage((p) => p + 1);
+    }
+  };
+
   if (error) return <div>Error loading manufacturers.</div>;
   if (isLoading) return <div>Loading manufacturers...</div>;
 
   return (
     <div>
       <h2>Vehicle Manufacturers</h2>
-      <div style={{ display: 'flex', gap: 16 }}>
+
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16 }}>
         <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
         <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
       </div>
 
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+      {errorMessage && <div style={{ color: 'red', marginBottom: 12 }}>{errorMessage}</div>}
 
       <form onSubmit={onSubmit} style={{ marginBottom: '20px' }}>
         <input
@@ -109,6 +135,7 @@ const VehicleMakeComponent: React.FC = () => {
           onChange={onChange}
           required
           style={{ marginRight: '10px' }}
+          disabled={isCreating || isUpdating}
         />
         <input
           type="text"
@@ -117,12 +144,13 @@ const VehicleMakeComponent: React.FC = () => {
           value={form.abrv}
           onChange={onChange}
           style={{ marginRight: '10px' }}
+          disabled={isCreating || isUpdating}
         />
         <button type="submit" disabled={isCreating || isUpdating}>
           {editId === null ? 'Add' : 'Save'}
         </button>
         {editId !== null && (
-          <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }}>
+          <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }} disabled={isCreating || isUpdating}>
             Cancel
           </button>
         )}
@@ -166,6 +194,16 @@ const VehicleMakeComponent: React.FC = () => {
           )}
         </tbody>
       </table>
+
+      <PaginationControl
+        page={page}
+        pageSize={pageSize}
+        onPrev={onPrevPage}
+        onNext={onNextPage}
+        disablePrev={page === 1}
+        disableNext={!makes || makes.length < pageSize}
+        onPageSizeChange={onPageSizeChange}
+      />
     </div>
   );
 };
