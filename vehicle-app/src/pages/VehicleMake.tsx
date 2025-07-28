@@ -11,6 +11,8 @@ import {
 } from '../api/vehicleApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
+import EntityTable, { Column } from '../components/EntityTable';
+import VehicleForm from '../components/VehicleForm';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -26,9 +28,16 @@ const directionOptions: SortOption[] = [
 const VehicleMakeComponent: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
-
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
+
+  const [form, setForm] = useState<Omit<VehicleMake, 'id'>>({ name: '', abrv: '' });
+  const [editId, setEditId] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sortField, sortDir, pageSize]);
 
   const queryParams: SortParams & { page: number; pageSize: number } = {
     field: sortField,
@@ -43,24 +52,20 @@ const VehicleMakeComponent: React.FC = () => {
   const [updateVehicleMake, { isLoading: isUpdating }] = useUpdateVehicleMakeMutation();
   const [deleteVehicleMake, { isLoading: isDeleting }] = useDeleteVehicleMakeMutation();
 
-  const [form, setForm] = useState<Omit<VehicleMake, 'id'>>({ name: '', abrv: '' });
-  const [editId, setEditId] = useState<number | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const columns: Column<VehicleMake>[] = [
+    { header: 'ID', accessor: 'id' },
+    { header: 'Name', accessor: 'name' },
+    { header: 'Abbreviation', accessor: 'abrv' },
+  ];
 
-  useEffect(() => {
-    setPage(1);
-  }, [sortField, sortDir, pageSize]);
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const onSortChange = (value: string) => setSortField(value as SortField);
   const onDirChange = (value: string) => setSortDir(value as SortDirection);
-
-  const onPageSizeChange = (size: number) => {
-    setPageSize(size);
-  };
+  const onPageSizeChange = (size: number) => setPageSize(size);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,11 +110,9 @@ const VehicleMakeComponent: React.FC = () => {
     }
   };
 
-  const onPrevPage = () => setPage((p) => Math.max(1, p - 1));
+  const onPrevPage = () => setPage(p => Math.max(1, p - 1));
   const onNextPage = () => {
-    if (makes && makes.length === pageSize) {
-      setPage((p) => p + 1);
-    }
+    if (makes && makes.length === pageSize) setPage(p => p + 1);
   };
 
   if (error) return <div>Error loading manufacturers.</div>;
@@ -124,76 +127,28 @@ const VehicleMakeComponent: React.FC = () => {
         <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
       </div>
 
-      {errorMessage && <div style={{ color: 'red', marginBottom: 12 }}>{errorMessage}</div>}
+      <VehicleForm
+        formData={form}
+        onChange={onChange}
+        onSubmit={onSubmit}
+        isSubmitting={isCreating || isUpdating}
+        errorMessage={errorMessage}
+        onCancel={editId !== null ? onCancelEdit : undefined}
+        isEditMode={editId !== null}
+        fields={[
+          { label: 'Name', name: 'name', required: true },
+          { label: 'Abbreviation', name: 'abrv' },
+        ]}
+      />
 
-      <form onSubmit={onSubmit} style={{ marginBottom: '20px' }}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={onChange}
-          required
-          style={{ marginRight: '10px' }}
-          disabled={isCreating || isUpdating}
-        />
-        <input
-          type="text"
-          name="abrv"
-          placeholder="Abbreviation"
-          value={form.abrv}
-          onChange={onChange}
-          style={{ marginRight: '10px' }}
-          disabled={isCreating || isUpdating}
-        />
-        <button type="submit" disabled={isCreating || isUpdating}>
-          {editId === null ? 'Add' : 'Save'}
-        </button>
-        {editId !== null && (
-          <button type="button" onClick={onCancelEdit} style={{ marginLeft: '10px' }} disabled={isCreating || isUpdating}>
-            Cancel
-          </button>
-        )}
-      </form>
-
-      <table border={1} cellPadding={8} style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Abbreviation</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {makes?.map((make) => (
-            <tr key={make.id}>
-              <td>{make.id}</td>
-              <td>{make.name}</td>
-              <td>{make.abrv}</td>
-              <td>
-                <button onClick={() => onEdit(make)} disabled={isDeleting || isCreating || isUpdating}>
-                  Edit
-                </button>{' '}
-                <button
-                  onClick={() => onDelete(make.id)}
-                  disabled={isDeleting || isCreating || isUpdating}
-                  style={{ color: 'red' }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-          {!makes?.length && (
-            <tr>
-              <td colSpan={4} style={{ textAlign: 'center' }}>
-                No manufacturers
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <EntityTable
+        data={makes || []}
+        columns={columns}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        editDisabled={isDeleting || isCreating || isUpdating}
+        deleteDisabled={isDeleting || isCreating || isUpdating}
+      />
 
       <PaginationControl
         page={page}

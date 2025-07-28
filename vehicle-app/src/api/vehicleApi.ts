@@ -19,6 +19,7 @@ export type VehicleModelWithMake = VehicleModel & {
 };
 
 export type SortField = 'id' | 'name' | 'abrv';
+
 export type SortDirection = 'asc' | 'desc';
 
 export type SortParams = {
@@ -27,8 +28,8 @@ export type SortParams = {
 };
 
 export type PagingParams = {
-  page?: number;     
-  pageSize?: number; 
+  page?: number;
+  pageSize?: number;
 };
 
 export type VehicleMakeQueryParams = SortParams & PagingParams;
@@ -39,8 +40,6 @@ export const vehicleApi = createApi({
   baseQuery: fakeBaseQuery(),
   tagTypes: ['VehicleMake', 'VehicleModel'],
   endpoints: (builder) => ({
-
-    // VehicleMake endpoints
     getVehicleMakes: builder.query<VehicleMake[], VehicleMakeQueryParams | void>({
       async queryFn(params) {
         const field = params?.field || 'id';
@@ -51,9 +50,9 @@ export const vehicleApi = createApi({
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const { data, error, count } = await supabase
+        const { data, error } = await supabase
           .from('VehicleMake')
-          .select('*', { count: 'exact' }) 
+          .select('*', { count: 'exact' })
           .order(field as string, { ascending })
           .range(from, to);
 
@@ -70,7 +69,6 @@ export const vehicleApi = createApi({
           .from('VehicleMake')
           .insert([newMake])
           .single();
-
         if (error) return { error };
         return { data: data as VehicleMake };
       },
@@ -85,7 +83,6 @@ export const vehicleApi = createApi({
           .update(rest)
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: data as VehicleMake };
       },
@@ -99,14 +96,12 @@ export const vehicleApi = createApi({
           .delete()
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: { id } };
       },
       invalidatesTags: ['VehicleMake'],
     }),
 
-    // VehicleModel endpoints
     getVehicleModels: builder.query<VehicleModelWithMake[], VehicleModelQueryParams | void>({
       async queryFn(params) {
         const field = params?.field || 'id';
@@ -117,24 +112,28 @@ export const vehicleApi = createApi({
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const { data, error, count } = await supabase
+        const { data, error } = await supabase
           .from('VehicleModel')
-          .select(`
+          .select(
+            `
             id,
             name,
             abrv,
             make_id,
             VehicleMake(name)
-          `, { count: 'exact' })
+          `,
+            { count: 'exact' }
+          )
           .order(field as string, { ascending })
           .range(from, to);
 
         if (error) return { error };
 
-        const mappedData = data?.map((item) => ({
-          ...item,
-          VehicleMake: Array.isArray(item.VehicleMake) && item.VehicleMake.length > 0 ? item.VehicleMake[0] : null,
-        })) || [];
+        const mappedData =
+          data?.map((item) => ({
+            ...item,
+            VehicleMake: Array.isArray(item.VehicleMake) && item.VehicleMake.length > 0 ? item.VehicleMake[0] : null,
+          })) || [];
 
         return { data: mappedData as VehicleModelWithMake[] };
       },
@@ -147,7 +146,6 @@ export const vehicleApi = createApi({
           .from('VehicleModel')
           .insert([newModel])
           .single();
-
         if (error) return { error };
         return { data: data as VehicleModel };
       },
@@ -162,7 +160,6 @@ export const vehicleApi = createApi({
           .update(rest)
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: data as VehicleModel };
       },
@@ -176,7 +173,6 @@ export const vehicleApi = createApi({
           .delete()
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: { id } };
       },
@@ -190,7 +186,6 @@ export const {
   useCreateVehicleMakeMutation,
   useUpdateVehicleMakeMutation,
   useDeleteVehicleMakeMutation,
-
   useGetVehicleModelsQuery,
   useCreateVehicleModelMutation,
   useUpdateVehicleModelMutation,
