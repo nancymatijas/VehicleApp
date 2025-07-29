@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/PaginationSort.css';
 
 interface PaginationProps {
   page: number;
@@ -23,23 +24,40 @@ const PaginationControl: React.FC<PaginationProps> = ({
   pageSizeOptions = [5, 10, 20, 50],
   onPageSizeChange,
 }) => (
-  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 16 }}>
-    <button onClick={onPrev} disabled={disablePrev}>
+  <div className="pagination-control">
+    <button
+      type="button"
+      onClick={onPrev}
+      disabled={disablePrev}
+      className="pagination-control__button"
+    >
       Previous
     </button>
-    <span>Page {page}{totalCount ? ` of ${Math.ceil(totalCount / pageSize)}` : ''}</span>
-    <button onClick={onNext} disabled={disableNext}>
+    <span className="pagination-control__page-info">
+      {`Page ${page}`}
+      {totalCount && ` of ${Math.ceil(totalCount / pageSize)}`}
+    </span>
+    <button
+      type="button"
+      onClick={onNext}
+      disabled={disableNext}
+      className="pagination-control__button"
+    >
       Next
     </button>
     {onPageSizeChange && (
-      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <label htmlFor="pageSizeSelect" className="pagination-control__label">
         Items per page:
         <select
+          id="pageSizeSelect"
           value={pageSize}
-          onChange={e => onPageSizeChange(Number(e.target.value))}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          className="pagination-control__select"
         >
-          {pageSizeOptions.map(ps => (
-            <option key={ps} value={ps}>{ps}</option>
+          {pageSizeOptions.map((ps) => (
+            <option key={ps} value={ps}>
+              {ps}
+            </option>
           ))}
         </select>
       </label>

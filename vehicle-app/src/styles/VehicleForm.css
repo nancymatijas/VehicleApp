@@ -1,0 +1,51 @@
+.vehicle-form {
+  margin-bottom: 20px;
+}
+
+.vehicle-form__field {
+  margin-bottom: 12px;
+}
+
+.vehicle-form__label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.vehicle-form__input,
+.vehicle-form__select {
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.vehicle-form__error {
+  color: red;
+  margin-top: 4px;
+}
+
+.vehicle-form__error-message {
+  color: red;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.vehicle-form__button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.vehicle-form__button--disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.vehicle-form__button--cancel {
+  background-color: #6c757d;
+  margin-right: 0;
+}

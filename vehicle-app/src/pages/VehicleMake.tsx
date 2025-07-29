@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/VehiclePages.css';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleMakesQuery,
@@ -14,7 +13,7 @@ import {
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
-import VehicleForm from '../components/VehicleForm';
+import VehicleForm, { FieldConfig } from '../components/VehicleForm';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -29,12 +28,12 @@ const directionOptions: SortOption[] = [
 
 const VehicleMakeComponent: React.FC = () => {
   const navigate = useNavigate();
+
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
 
-  const [form, setForm] = useState<Omit<VehicleMake, 'id'>>({ name: '', abrv: '' });
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -50,7 +49,6 @@ const VehicleMakeComponent: React.FC = () => {
   };
 
   const { data: makes, error, isLoading } = useGetVehicleMakesQuery(queryParams);
-
   const [createVehicleMake, { isLoading: isCreating }] = useCreateVehicleMakeMutation();
   const [updateVehicleMake, { isLoading: isUpdating }] = useUpdateVehicleMakeMutation();
   const [deleteVehicleMake, { isLoading: isDeleting }] = useDeleteVehicleMakeMutation();
@@ -61,32 +59,24 @@ const VehicleMakeComponent: React.FC = () => {
     { header: 'Abbreviation', accessor: 'abrv' },
   ];
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+  const defaultValues = editId !== null
+    ? makes?.find((make) => make.id === editId) ?? { name: '', abrv: '' }
+    : { name: '', abrv: '' };
 
-  const onSortChange = (value: string) => setSortField(value as SortField);
-  const onDirChange = (value: string) => setSortDir(value as SortDirection);
-  const onPageSizeChange = (size: number) => setPageSize(size);
+  const fields: FieldConfig[] = [
+    { label: 'Name', name: 'name', required: true },
+    { label: 'Abbreviation', name: 'abrv' },
+  ];
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: Omit<VehicleMake, 'id'>) => {
     setErrorMessage(null);
-
-    if (!form.name.trim()) {
-      setErrorMessage('Name is required.');
-      return;
-    }
-
     try {
       if (editId === null) {
-        await createVehicleMake(form).unwrap();
+        await createVehicleMake(data).unwrap();
       } else {
-        await updateVehicleMake({ id: editId, ...form }).unwrap();
+        await updateVehicleMake({ id: editId, ...data }).unwrap();
         setEditId(null);
       }
-      setForm({ name: '', abrv: '' });
     } catch {
       setErrorMessage('Error saving data.');
     }
@@ -94,13 +84,12 @@ const VehicleMakeComponent: React.FC = () => {
 
   const onEdit = (make: VehicleMake) => {
     setEditId(make.id);
-    setForm({ name: make.name, abrv: make.abrv });
     setErrorMessage(null);
   };
 
   const onCancelEdit = () => {
     setEditId(null);
-    setForm({ name: '', abrv: '' });
+    setErrorMessage(null);
   };
 
   const onDelete = async (id: number) => {
@@ -113,45 +102,41 @@ const VehicleMakeComponent: React.FC = () => {
     }
   };
 
-  const onPrevPage = () => setPage(p => Math.max(1, p - 1));
-  const onNextPage = () => {
-    if (makes && makes.length === pageSize) setPage(p => p + 1);
-  };
-
   if (error) return <div>Error loading manufacturers.</div>;
   if (isLoading) return <div>Loading manufacturers...</div>;
 
   return (
     <div className="container">
-
-      <button 
+      <button
         onClick={() => navigate('/')}
         className="backButton"
       >
         Back to Homepage
       </button>
-
       <h2 className="heading">Vehicle Manufacturers</h2>
-
       <div className="sortControl">
-        <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
-        <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
+        <SortSelect
+          options={sortOptions}
+          value={sortField}
+          onChange={(v) => setSortField(v as SortField)}
+          label="Sort By"
+        />
+        <SortSelect
+          options={directionOptions}
+          value={sortDir}
+          onChange={(v) => setSortDir(v as SortDirection)}
+          label="Order By"
+        />
       </div>
-
       <VehicleForm
-        formData={form}
-        onChange={onChange}
+        defaultValues={defaultValues}
+        fields={fields}
         onSubmit={onSubmit}
         isSubmitting={isCreating || isUpdating}
         errorMessage={errorMessage}
         onCancel={editId !== null ? onCancelEdit : undefined}
         isEditMode={editId !== null}
-        fields={[
-          { label: 'Name', name: 'name', required: true },
-          { label: 'Abbreviation', name: 'abrv' },
-        ]}
       />
-
       <EntityTable
         data={makes || []}
         columns={columns}
@@ -160,15 +145,16 @@ const VehicleMakeComponent: React.FC = () => {
         editDisabled={isDeleting || isCreating || isUpdating}
         deleteDisabled={isDeleting || isCreating || isUpdating}
       />
-
       <PaginationControl
         page={page}
         pageSize={pageSize}
-        onPrev={onPrevPage}
-        onNext={onNextPage}
+        onPrev={() => setPage((p) => Math.max(1, p - 1))}
+        onNext={() => {
+          if (makes && makes.length === pageSize) setPage((p) => p + 1);
+        }}
         disablePrev={page === 1}
         disableNext={!makes || makes.length < pageSize}
-        onPageSizeChange={onPageSizeChange}
+        onPageSizeChange={setPageSize}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/PaginationSort.css';
 
 export type SortOption = {
   value: string;
@@ -12,13 +13,21 @@ interface SortSelectProps {
   label?: string;
 }
 
-const SortSelect: React.FC<SortSelectProps> = ({ options, value, onChange, label }) => (
-  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-    {label && <span>{label}</span>}
+const SortSelect: React.FC<SortSelectProps> = ({
+  options,
+  value,
+  onChange,
+  label,
+}) => (
+  <label className="sort-select" htmlFor="sort-select">
+    {label && (
+      <span className="sort-select__label">{label}</span>
+    )}
     <select
+      id="sort-select"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      style={{ padding: '4px 8px', fontSize: 14 }}
+      className="sort-select__select"
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>

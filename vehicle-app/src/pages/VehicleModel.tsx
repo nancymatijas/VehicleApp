@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/VehiclePages.css';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleModelsQuery,
@@ -16,7 +15,7 @@ import {
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
-import VehicleForm from '../components/VehicleForm';
+import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
@@ -32,12 +31,12 @@ const directionOptions: SortOption[] = [
 
 const VehicleModelComponent: React.FC = () => {
   const navigate = useNavigate();
+
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
 
-  const [form, setForm] = useState<Omit<VehicleModel, 'id'>>({ name: '', abrv: '', make_id: 0 });
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -59,37 +58,49 @@ const VehicleModelComponent: React.FC = () => {
   const [updateVehicleModel, { isLoading: isUpdating }] = useUpdateVehicleModelMutation();
   const [deleteVehicleModel, { isLoading: isDeleting }] = useDeleteVehicleModelMutation();
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: name === 'make_id' ? Number(value) : value,
-    }));
-  };
+  const makesOptions: Option[] = makes ? makes.map((m) => ({ label: m.name, value: m.id })) : [];
 
-  const onSortChange = (val: string) => setSortField(val as SortField);
-  const onDirChange = (val: string) => setSortDir(val as SortDirection);
+  const defaultValues = editId !== null
+    ? models?.find((m) => m.id === editId) ?? { name: '', abrv: '', make_id: 0 }
+    : { name: '', abrv: '', make_id: 0 };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fields: FieldConfig[] = [
+    { label: 'Model Name', name: 'name', required: true },
+    { label: 'Abbreviation', name: 'abrv' },
+  ];
+
+  const selectFields: SelectFieldConfig[] = [
+    {
+      label: 'Manufacturer',
+      name: 'make_id',
+      options: makesOptions,
+      required: true,
+      disabled: isLoadingMakes || isCreating || isUpdating,
+    },
+  ];
+
+  const columns: Column<VehicleModelWithMake>[] = [
+    { header: 'ID', accessor: 'id' },
+    { header: 'Model Name', accessor: 'name' },
+    { header: 'Abbreviation', accessor: 'abrv' },
+    {
+      header: 'Manufacturer',
+      accessor: (model) => {
+        const make = makes?.find((m) => m.id === model.make_id);
+        return make ? make.name : 'Unknown';
+      },
+    },
+  ];
+
+  const onSubmit = async (data: Omit<VehicleModel, 'id'>) => {
     setErrorMessage(null);
-
-    if (!form.name.trim()) {
-      setErrorMessage('Model name is required.');
-      return;
-    }
-    if (!form.make_id) {
-      setErrorMessage('You must select a manufacturer.');
-      return;
-    }
     try {
       if (editId === null) {
-        await createVehicleModel(form).unwrap();
+        await createVehicleModel(data).unwrap();
       } else {
-        await updateVehicleModel({ id: editId, ...form }).unwrap();
+        await updateVehicleModel({ id: editId, ...data }).unwrap();
         setEditId(null);
       }
-      setForm({ name: '', abrv: '', make_id: 0 });
     } catch {
       setErrorMessage('Error saving data.');
     }
@@ -97,13 +108,12 @@ const VehicleModelComponent: React.FC = () => {
 
   const onEdit = (model: VehicleModelWithMake) => {
     setEditId(model.id);
-    setForm({ name: model.name, abrv: model.abrv, make_id: model.make_id });
     setErrorMessage(null);
   };
 
   const onCancel = () => {
     setEditId(null);
-    setForm({ name: '', abrv: '', make_id: 0 });
+    setErrorMessage(null);
   };
 
   const onDelete = async (id: number) => {
@@ -116,75 +126,39 @@ const VehicleModelComponent: React.FC = () => {
     }
   };
 
-  const onPrev = () => setPage((p) => Math.max(1, p - 1));
-  const onNext = () => {
-    if (models && models.length === pageSize) setPage((p) => p + 1);
-  };
-
-  const columns: Column<VehicleModelWithMake>[] = [
-    { header: 'ID', accessor: 'id' },
-    { header: 'Model Name', accessor: 'name' },
-    { header: 'Abbreviation', accessor: 'abrv' },
-    {
-        header: 'Manufacturer', accessor: (model) => {
-          const make = makes?.find(m => m.id === model.make_id);
-          return make ? make.name : 'Unknown';
-        }
-      },
-  ];
-
-  const formFields: { label: string; name: keyof Omit<VehicleModel, 'id'>; required?: boolean }[] = [
-    { label: 'Model Name', name: 'name', required: true },
-    { label: 'Abbreviation', name: 'abrv' },
-  ];
-
-  const formSelectFields: { label: string; name: keyof Omit<VehicleModel, 'id'>; options: SortOption[]; required?: boolean; disabled?: boolean }[] = [
-    {
-      label: 'Manufacturer',
-      name: 'make_id',
-      options: makes
-        ? makes.map((m) => ({
-            label: m.name,
-            value: m.id.toString(), 
-          }))
-        : [],
-      required: true,
-      disabled: isLoadingMakes || isCreating || isUpdating,
-    },
-  ];
-
   if (error) return <div>Error loading models.</div>;
   if (isLoading) return <div>Loading models...</div>;
 
   return (
     <div className="container">
-
-      <button 
-        onClick={() => navigate('/')}
-        className="backButton"
-      >
+      <button onClick={() => navigate('/')} className="backButton">
         Back to Homepage
       </button>
-
       <h2 className="heading">Vehicle Models</h2>
-
       <div className="sortControls">
-        <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
-        <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
+        <SortSelect
+          options={sortOptions}
+          value={sortField}
+          onChange={(v) => setSortField(v as SortField)}
+          label="Sort By"
+        />
+        <SortSelect
+          options={directionOptions}
+          value={sortDir}
+          onChange={(v) => setSortDir(v as SortDirection)}
+          label="Order By"
+        />
       </div>
-
       <VehicleForm
-        formData={form}
-        onChange={onChange}
+        defaultValues={defaultValues}
+        fields={fields}
+        selectFields={selectFields}
         onSubmit={onSubmit}
         isSubmitting={isCreating || isUpdating}
         errorMessage={errorMessage}
         onCancel={editId !== null ? onCancel : undefined}
         isEditMode={editId !== null}
-        fields={formFields}
-        selectFields={formSelectFields}
       />
-
       <EntityTable
         data={models || []}
         columns={columns}
@@ -193,12 +167,13 @@ const VehicleModelComponent: React.FC = () => {
         editDisabled={isDeleting || isCreating || isUpdating}
         deleteDisabled={isDeleting || isCreating || isUpdating}
       />
-
       <PaginationControl
         page={page}
         pageSize={pageSize}
-        onPrev={onPrev}
-        onNext={onNext}
+        onPrev={() => setPage((p) => Math.max(1, p - 1))}
+        onNext={() => {
+          if (models && models.length === pageSize) setPage((p) => p + 1);
+        }}
         disablePrev={page === 1}
         disableNext={!models || models.length < pageSize}
         onPageSizeChange={setPageSize}

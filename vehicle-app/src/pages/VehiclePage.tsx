@@ -10,6 +10,7 @@ const VehiclePage: React.FC = () => {
       <h1>Vehicle Management</h1>
       <button
         className="button-vehicle-page"
+        type="button"
         onClick={() => navigate('/vehicle-makes')}
       >
         Vehicle Makes
@@ -17,6 +18,7 @@ const VehiclePage: React.FC = () => {
 
       <button
         className="button-vehicle-page"
+        type="button"
         onClick={() => navigate('/vehicle-models')}
       >
         Vehicle Models

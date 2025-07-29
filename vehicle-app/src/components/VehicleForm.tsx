@@ -1,92 +1,168 @@
 import React from 'react';
+import { useForm, SubmitHandler, FieldValues, DefaultValues } from 'react-hook-form';
+import '../styles/VehicleForm.css';
 
 export interface Option {
   label: string;
   value: string | number;
 }
 
-interface VehicleFormProps<T> {
-  formData: T;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
+export interface FieldConfig {
+  label: string;
+  name: string;
+  required?: boolean;
+  type?: string;
+  placeholder?: string;
+}
+
+export interface SelectFieldConfig extends FieldConfig {
+  options: Option[];
+  disabled?: boolean;
+}
+
+interface VehicleFormProps<T extends FieldValues> {
+  defaultValues: T;
+  fields: FieldConfig[];
+  selectFields?: SelectFieldConfig[];
+  onSubmit: SubmitHandler<T>;
   isSubmitting: boolean;
   errorMessage?: string | null;
   onCancel?: () => void;
   isEditMode: boolean;
-  fields: Array<{
-    label: string;
-    name: keyof T;
-    placeholder?: string;
-    required?: boolean;
-    type?: string;
-  }>;
-  selectFields?: Array<{
-    label: string;
-    name: keyof T;
-    options: Option[];
-    required?: boolean;
-    disabled?: boolean;
-  }>;
 }
 
-function VehicleForm<T>({
-  formData,
-  onChange,
+function VehicleForm<T extends FieldValues>({
+  defaultValues,
+  fields,
+  selectFields,
   onSubmit,
   isSubmitting,
   errorMessage,
   onCancel,
   isEditMode,
-  fields,
-  selectFields,
 }: VehicleFormProps<T>) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<T>({
+    defaultValues: defaultValues as DefaultValues<T>,
+  });
+
+  React.useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const wrappedSubmit = (data: FieldValues) => {
+    return onSubmit(data as T);
+  };
+
   return (
-    <form onSubmit={onSubmit} style={{ marginBottom: 20 }}>
-      {fields.map(({ label, name, placeholder, required, type = 'text' }) => (
-        <input
-          key={String(name)}
-          name={String(name)}
-          placeholder={placeholder || label}
-          type={type}
-          value={formData[name] as unknown as string}
-          onChange={onChange}
-          required={required}
-          disabled={isSubmitting}
-          style={{ marginRight: 10 }}
-        />
+    <form
+      onSubmit={handleSubmit(wrappedSubmit)}
+      className="vehicle-form"
+    >
+      {fields.map(({ label, name, required, type = 'text', placeholder }) => (
+        <div
+          key={name}
+          className="vehicle-form__field"
+        >
+          <label
+            htmlFor={name}
+            className="vehicle-form__label"
+          >
+            {label}
+          </label>
+          <input
+            id={name}
+            type={type}
+            placeholder={placeholder || label}
+            disabled={isSubmitting}
+            {...register(
+              name as any,
+              required ? { required: `${label} is required` } : {},
+            )}
+            className="vehicle-form__input"
+          />
+          {errors[name] && (
+            <p className="vehicle-form__error">
+              {(errors[name] as any).message}
+            </p>
+          )}
+        </div>
       ))}
 
-      {selectFields &&
-        selectFields.map(({ label, name, options, required, disabled }) => (
-          <select
-            key={String(name)}
-            name={String(name)}
-            value={formData[name] as unknown as string | number}
-            onChange={onChange}
-            required={required}
-            disabled={disabled || isSubmitting}
-            style={{ marginRight: 10 }}
+      {selectFields && selectFields.map(({ label, name, options, required, disabled }) => (
+        <div
+          key={name}
+          className="vehicle-form__field"
+        >
+          <label
+            htmlFor={name}
+            className="vehicle-form__label"
           >
-            <option value="">Select {label}</option>
+            {label}
+          </label>
+          <select
+            id={name}
+            disabled={disabled || isSubmitting}
+            {...register(
+              name as any,
+              required
+                ? { required: `${label} is required`, valueAsNumber: true }
+                : { valueAsNumber: true },
+            )}
+            className="vehicle-form__select"
+          >
+            <option value="">
+              {`Select ${label}`}
+            </option>
             {options.map(({ label: optLabel, value }) => (
-              <option key={String(value)} value={value}>
+              <option
+                key={value}
+                value={value}
+              >
                 {optLabel}
               </option>
             ))}
           </select>
-        ))}
+          {errors[name] && (
+            <p className="vehicle-form__error">
+              {(errors[name] as any).message}
+            </p>
+          )}
+        </div>
+      ))}
 
-      <button type="submit" disabled={isSubmitting}>
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`vehicle-form__button${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
+        style={{ marginRight: isEditMode && onCancel ? 8 : 0 }}
+      >
         {isEditMode ? 'Save' : 'Add'}
       </button>
 
       {isEditMode && onCancel && (
-        <button type="button" onClick={onCancel} disabled={isSubmitting} style={{ marginLeft: 10 }}>
+        <button
+          type="button"
+          onClick={() => {
+            reset(defaultValues);
+            onCancel();
+          }}
+          disabled={isSubmitting}
+          className={`vehicle-form__button vehicle-form__button--cancel${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
+        >
           Cancel
         </button>
       )}
 
-      {errorMessage && <div style={{ color: 'red', marginTop: 8 }}>{errorMessage}</div>}
+      {errorMessage && (
+        <div className="vehicle-form__error-message">
+          {errorMessage}
+        </div>
+      )}
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/EntityTable.css';
 
 export interface Column<T> {
   header: string;
@@ -38,26 +39,49 @@ function EntityTable<T extends { id: number }>({
   deleteDisabled = false,
 }: EntityTableProps<T>) {
   return (
-    <table style={{ borderCollapse: 'collapse', width: '100%' }} border={1} cellPadding={8}>
+    <table className="entity-table">
       <thead>
         <tr>
-          {columns.map((col, idx) => (
-            <th key={idx} style={{ width: col.width }}>{col.header}</th>
+          {columns.map((col) => (
+            <th key={typeof col.accessor === 'string' ? col.accessor : undefined} style={{ width: col.width }}>
+              {col.header}
+            </th>
           ))}
           <th>Actions</th>
         </tr>
       </thead>
+
       <tbody>
         {data.length > 0 ? (
           data.map((row) => (
             <tr key={row.id}>
-              {columns.map((col, idx) => {
-                const value = typeof col.accessor === 'function' ? col.accessor(row) : row[col.accessor];
-                return <td key={idx}>{renderCellValue(value)}</td>;
+              {columns.map((col) => {
+                const value =
+                  typeof col.accessor === 'function'
+                    ? col.accessor(row)
+                    : row[col.accessor];
+                return (
+                  <td key={typeof col.accessor === 'string' ? col.accessor : undefined}>
+                    {renderCellValue(value)}
+                  </td>
+                );
               })}
               <td>
-                <button onClick={() => onEdit(row)} disabled={editDisabled}>Edit</button>{' '}
-                <button onClick={() => onDelete(row.id)} disabled={deleteDisabled} style={{ color: 'red' }}>Delete</button>
+                <button
+                  onClick={() => onEdit(row)}
+                  disabled={editDisabled}
+                  aria-label={`Edit item with ID ${row.id}`}
+                >
+                  Edit
+                </button>{' '}
+                <button
+                  onClick={() => onDelete(row.id)}
+                  disabled={deleteDisabled}
+                  style={{ color: 'red' }}
+                  aria-label={`Delete item with ID ${row.id}`}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))
