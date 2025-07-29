@@ -1,12 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { supabase } from './supabaseClient';
 
-export type VehicleMake = {
-  id: number;
-  name: string;
-  abrv: string;
-};
-
 export type VehicleModel = {
   id: number;
   make_id: number;
@@ -19,7 +13,6 @@ export type VehicleModelWithMake = VehicleModel & {
 };
 
 export type SortField = 'id' | 'name' | 'abrv';
-
 export type SortDirection = 'asc' | 'desc';
 
 export type SortParams = {
@@ -32,76 +25,13 @@ export type PagingParams = {
   pageSize?: number;
 };
 
-export type VehicleMakeQueryParams = SortParams & PagingParams;
 export type VehicleModelQueryParams = SortParams & PagingParams;
 
-export const vehicleApi = createApi({
-  reducerPath: 'vehicleApi',
+export const vehicleModelApi = createApi({
+  reducerPath: 'vehicleModelApi',
   baseQuery: fakeBaseQuery(),
-  tagTypes: ['VehicleMake', 'VehicleModel'],
+  tagTypes: ['VehicleModel'],
   endpoints: (builder) => ({
-    getVehicleMakes: builder.query<VehicleMake[], VehicleMakeQueryParams | void>({
-      async queryFn(params) {
-        const field = params?.field || 'id';
-        const ascending = params?.direction !== 'desc';
-        const page = params?.page ?? 1;
-        const pageSize = params?.pageSize ?? 10;
-
-        const from = (page - 1) * pageSize;
-        const to = from + pageSize - 1;
-
-        const { data, error } = await supabase
-          .from('VehicleMake')
-          .select('*', { count: 'exact' })
-          .order(field as string, { ascending })
-          .range(from, to);
-
-        if (error) return { error };
-
-        return { data: data as VehicleMake[] };
-      },
-      providesTags: ['VehicleMake'],
-    }),
-
-    createVehicleMake: builder.mutation<VehicleMake, Omit<VehicleMake, 'id'>>({
-      async queryFn(newMake) {
-        const { data, error } = await supabase
-          .from('VehicleMake')
-          .insert([newMake])
-          .single();
-        if (error) return { error };
-        return { data: data as VehicleMake };
-      },
-      invalidatesTags: ['VehicleMake'],
-    }),
-
-    updateVehicleMake: builder.mutation<VehicleMake, VehicleMake>({
-      async queryFn(updatedMake) {
-        const { id, ...rest } = updatedMake;
-        const { data, error } = await supabase
-          .from('VehicleMake')
-          .update(rest)
-          .eq('id', id)
-          .single();
-        if (error) return { error };
-        return { data: data as VehicleMake };
-      },
-      invalidatesTags: ['VehicleMake'],
-    }),
-
-    deleteVehicleMake: builder.mutation<{ id: number }, number>({
-      async queryFn(id) {
-        const { error } = await supabase
-          .from('VehicleMake')
-          .delete()
-          .eq('id', id)
-          .single();
-        if (error) return { error };
-        return { data: { id } };
-      },
-      invalidatesTags: ['VehicleMake'],
-    }),
-
     getVehicleModels: builder.query<VehicleModelWithMake[], VehicleModelQueryParams | void>({
       async queryFn(params) {
         const field = params?.field || 'id';
@@ -121,7 +51,7 @@ export const vehicleApi = createApi({
             abrv,
             make_id,
             VehicleMake(name)
-          `,
+            `,
             { count: 'exact' }
           )
           .order(field as string, { ascending })
@@ -182,12 +112,8 @@ export const vehicleApi = createApi({
 });
 
 export const {
-  useGetVehicleMakesQuery,
-  useCreateVehicleMakeMutation,
-  useUpdateVehicleMakeMutation,
-  useDeleteVehicleMakeMutation,
   useGetVehicleModelsQuery,
   useCreateVehicleModelMutation,
   useUpdateVehicleModelMutation,
   useDeleteVehicleModelMutation,
-} = vehicleApi;
+} = vehicleModelApi;

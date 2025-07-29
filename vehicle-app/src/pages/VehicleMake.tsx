@@ -9,7 +9,7 @@ import {
   SortField,
   SortDirection,
   SortParams,
-} from '../api/vehicleApi';
+} from '../api/vehicleMakeApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';

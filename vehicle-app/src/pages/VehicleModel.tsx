@@ -5,13 +5,13 @@ import {
   useCreateVehicleModelMutation,
   useUpdateVehicleModelMutation,
   useDeleteVehicleModelMutation,
-  useGetVehicleMakesQuery,
   VehicleModel,
   VehicleModelWithMake,
   SortField,
   SortDirection,
   SortParams,
-} from '../api/vehicleApi';
+} from '../api/vehicleModelApi';
+import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
