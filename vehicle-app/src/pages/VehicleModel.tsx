@@ -125,7 +125,12 @@ const VehicleModelComponent: React.FC = () => {
     { header: 'ID', accessor: 'id' },
     { header: 'Model Name', accessor: 'name' },
     { header: 'Abbreviation', accessor: 'abrv' },
-    { header: 'Manufacturer', accessor: (model) => model.VehicleMake?.name ?? 'Unknown' },
+    {
+        header: 'Manufacturer', accessor: (model) => {
+          const make = makes?.find(m => m.id === model.make_id);
+          return make ? make.name : 'Unknown';
+        }
+      },
   ];
 
   const formFields: { label: string; name: keyof Omit<VehicleModel, 'id'>; required?: boolean }[] = [
