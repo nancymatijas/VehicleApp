@@ -1,9 +1,19 @@
 .pagination-control {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
   align-items: center;
-  margin-top: 16px;
+  justify-content: center;;
+  margin-top: 20px;
   font-family: Arial, sans-serif;
+  
+}
+
+.pagination-control__navigation {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .pagination-control__button {

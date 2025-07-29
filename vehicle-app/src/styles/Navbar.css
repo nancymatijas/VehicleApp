@@ -8,7 +8,7 @@
   color: white;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 25px;
   box-sizing: border-box;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -17,15 +17,16 @@
 .navbar-logo {
   font-weight: bold;
   font-size: 25px;
-  margin-right: 32px;
+  margin-right: 25px;
 }
 
 .navbar-link {
   color: white;
   text-decoration: none;
-  margin-right: 24px;
+  margin-right: 25px;
   font-size: 20px;
   font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .navbar-link:last-child {

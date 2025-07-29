@@ -21,13 +21,14 @@ const SortSelect: React.FC<SortSelectProps> = ({
   label,
   id,
 }) => {
-  const generatedId = React.useId ? React.useId() : 'sort-select';
+  const generatedId = React.useId();
+  const selectId = id ?? generatedId;
 
   return (
-    <label className="sort-select" htmlFor={id ?? generatedId}>
+    <label className="sort-select" htmlFor={selectId}>
       {label && <span className="sort-select__label">{label}</span>}
       <select
-        id={id ?? generatedId}
+        id={selectId}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
         className="sort-select__select"

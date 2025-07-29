@@ -25,16 +25,17 @@ const PaginationControl: React.FC<PaginationProps> = ({
   onPageSizeChange,
 }) => (
   <div className="pagination-control">
+  <div className="pagination-control__navigation">
     <button
       type="button"
       onClick={onPrev}
       disabled={disablePrev}
       className="pagination-control__button"
     >
-      Previous
+      &lt;
     </button>
     <span className="pagination-control__page-info">
-      {`Page ${page}`}
+      {`${page}`}
       {totalCount && ` of ${Math.ceil(totalCount / pageSize)}`}
     </span>
     <button
@@ -43,9 +44,11 @@ const PaginationControl: React.FC<PaginationProps> = ({
       disabled={disableNext}
       className="pagination-control__button"
     >
-      Next
+      &gt;
     </button>
-    {onPageSizeChange && (
+  </div>
+  {onPageSizeChange && (
+    <div className="pagination-control__page-size">
       <label htmlFor="pageSizeSelect" className="pagination-control__label">
         Items per page:
         <select
@@ -61,8 +64,10 @@ const PaginationControl: React.FC<PaginationProps> = ({
           ))}
         </select>
       </label>
-    )}
-  </div>
+    </div>
+  )}
+</div>
+
 );
 
 export default PaginationControl;

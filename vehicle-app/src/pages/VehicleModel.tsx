@@ -189,9 +189,6 @@ const VehicleModelComponent: React.FC = () => {
 
   return (
     <div className="container">
-      <button onClick={() => navigate('/')} className="backButton">
-        Back to Homepage
-      </button>
       <h2 className="heading">Vehicle Models</h2>
 
       <FilterControlModel

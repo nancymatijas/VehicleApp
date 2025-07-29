@@ -161,12 +161,6 @@ const VehicleMakeComponent: React.FC = () => {
 
   return (
     <div className="container">
-      <button
-        onClick={() => navigate('/')}
-        className="backButton"
-      >
-        Back to Homepage
-      </button>
       <h2 className="heading">Vehicle Manufacturers</h2>
 
       <FilterControlMake

@@ -1,20 +1,78 @@
 .entity-table {
   border-collapse: collapse;
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+  min-width: 320px;
 }
 
 .entity-table th,
 .entity-table td {
-  padding: 8px;
+  padding: 12px 16px;
   border: 1px solid #ddd;
   text-align: left;
+  vertical-align: middle;
+  transition: background-color 0.15s ease;
 }
 
 .entity-table th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  user-select: none;
 }
 
-.entity-table button {
+.entity-table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+.btn-edit {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
   cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-edit:hover:not(:disabled),
+.btn-edit:focus:not(:disabled) {
+  background-color: #0056b3;
+  outline: none;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.btn-delete:hover:not(:disabled),
+.btn-delete:focus:not(:disabled) {
+  background-color: #a71d2a;
+  outline: none;
+}
+
+.btn-edit:disabled,
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .entity-table th,
+  .entity-table td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
 }

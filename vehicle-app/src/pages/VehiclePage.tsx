@@ -7,6 +7,7 @@ const VehiclePage: React.FC = () => {
 
   return (
     <div className="container-vehicle-page">
+      
       <h1>Vehicle Management</h1>
       <button
         className="button-vehicle-page"

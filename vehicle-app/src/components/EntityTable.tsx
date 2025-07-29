@@ -71,14 +71,15 @@ function EntityTable<T extends { id: number }>({
                   onClick={() => onEdit(row)}
                   disabled={editDisabled}
                   aria-label={`Edit item with ID ${row.id}`}
+                  className="btn-edit"
                 >
                   Edit
                 </button>{' '}
                 <button
                   onClick={() => onDelete(row.id)}
                   disabled={deleteDisabled}
-                  style={{ color: 'red' }}
                   aria-label={`Delete item with ID ${row.id}`}
+                  className="btn-delete"
                 >
                   Delete
                 </button>
