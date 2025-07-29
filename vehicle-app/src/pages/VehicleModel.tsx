@@ -151,7 +151,8 @@ const VehicleModelComponent: React.FC = () => {
   if (isLoading) return <div>Loading models...</div>;
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
+    
       <button 
         onClick={() => navigate('/')}
         style={{ marginBottom: 16, padding: '8px 16px', cursor: 'pointer' }}
