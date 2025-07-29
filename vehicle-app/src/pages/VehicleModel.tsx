@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/VehiclePages.css';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleModelsQuery,
@@ -151,23 +152,21 @@ const VehicleModelComponent: React.FC = () => {
   if (isLoading) return <div>Loading models...</div>;
 
   return (
-    <div style={{ padding: 16 }}>
-    
+    <div className="container">
+
       <button 
         onClick={() => navigate('/')}
-        style={{ marginBottom: 16, padding: '8px 16px', cursor: 'pointer' }}
+        className="backButton"
       >
         Back to Homepage
       </button>
 
-      <h2>Vehicle Models</h2>
+      <h2 className="heading">Vehicle Models</h2>
 
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16, alignItems: 'center' }}>
+      <div className="sortControls">
         <SortSelect options={sortOptions} value={sortField} onChange={onSortChange} label="Sort By" />
         <SortSelect options={directionOptions} value={sortDir} onChange={onDirChange} label="Order By" />
       </div>
-
-      {errorMessage && <div style={{ color: 'red', marginBottom: 12 }}>{errorMessage}</div>}
 
       <VehicleForm
         formData={form}

@@ -1,22 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/VehiclePages.css';
 
 const VehiclePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={{ padding: 32, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className="container-vehicle-page">
       <h1>Vehicle Management</h1>
-
       <button
-        style={{ margin: '16px 0', padding: '12px 24px', fontSize: 16, cursor: 'pointer' }}
+        className="button-vehicle-page"
         onClick={() => navigate('/vehicle-makes')}
       >
         Vehicle Makes
       </button>
 
       <button
-        style={{ margin: '16px 0', padding: '12px 24px', fontSize: 16, cursor: 'pointer' }}
+        className="button-vehicle-page"
         onClick={() => navigate('/vehicle-models')}
       >
         Vehicle Models

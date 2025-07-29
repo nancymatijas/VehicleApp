@@ -1,0 +1,39 @@
+.container-vehicle-page {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button-vehicle-page {
+  margin: 16px 0;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.container {
+  padding: 16px;
+}
+
+.backButton {
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.heading {
+  margin-bottom: 16px; 
+}
+
+.sortControls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.errorMessage {
+  color: red;
+  margin-bottom: 12px;
+}
