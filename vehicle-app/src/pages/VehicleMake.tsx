@@ -16,6 +16,26 @@ import EntityTable, { Column } from '../components/EntityTable';
 import VehicleForm, { FieldConfig } from '../components/VehicleForm';
 import FilterControlMake, { FilterFieldMake } from '../components/FilterControlMake';
 
+const LS_KEY = 'vehicleMakeListState';
+
+const getInitialState = () => {
+  try {
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+  }
+  return {
+    sortField: 'name' as SortField,
+    sortDir: 'asc' as SortDirection,
+    page: 1,
+    pageSize: 5,
+    filterField: 'name' as FilterFieldMake,
+    filterValue: '',
+  };
+};
+
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
   { value: 'abrv', label: 'Abbreviation' },
@@ -34,14 +54,15 @@ const filterFieldOptionsMake: { value: FilterFieldMake; label: string }[] = [
 
 const VehicleMakeComponent: React.FC = () => {
   const navigate = useNavigate();
+  const initialState = getInitialState();
 
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortDir, setSortDir] = useState<SortDirection>('asc');
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(5);
+  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
+  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
+  const [page, setPage] = useState<number>(initialState.page);
+  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
 
-  const [filterField, setFilterField] = useState<'name' | 'abrv'>('name');
-  const [filterValue, setFilterValue] = useState<string>('');
+  const [filterField, setFilterField] = useState<FilterFieldMake>(initialState.filterField);
+  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
 
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,12 +71,34 @@ const VehicleMakeComponent: React.FC = () => {
     setPage(1);
   }, [sortField, sortDir, pageSize, filterField, filterValue]);
 
-  const queryParams: SortParams & { page: number; pageSize: number; filterField?: 'name' | 'abrv'; filterValue?: string } = {
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        LS_KEY,
+        JSON.stringify({
+          sortField,
+          sortDir,
+          page,
+          pageSize,
+          filterField,
+          filterValue,
+        })
+      );
+    } catch {
+    }
+  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
+
+  const queryParams: SortParams & {
+    page: number;
+    pageSize: number;
+    filterField?: FilterFieldMake;
+    filterValue?: string;
+  } = {
     field: sortField,
     direction: sortDir,
     page,
     pageSize,
-    filterField: filterValue.trim() !== '' ? (filterField as 'name' | 'abrv') : undefined,
+    filterField: filterValue.trim() !== '' ? filterField : undefined,
     filterValue: filterValue.trim() !== '' ? filterValue : undefined,
   };
 
@@ -177,7 +220,7 @@ const VehicleMakeComponent: React.FC = () => {
         }}
         disablePrev={page === 1}
         disableNext={!makes || makes.length < pageSize}
-        onPageSizeChange={setPageSize}
+        onPageSizeChange={(newSize) => setPageSize(newSize)}
       />
     </div>
   );

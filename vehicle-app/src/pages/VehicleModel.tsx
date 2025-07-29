@@ -5,12 +5,12 @@ import {
   useCreateVehicleModelMutation,
   useUpdateVehicleModelMutation,
   useDeleteVehicleModelMutation,
-  VehicleModel,
-  VehicleModelWithMake,
   SortField,
   SortDirection,
   SortParams,
   FilterFieldModel,
+  VehicleModel,
+  VehicleModelWithMake,
 } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
@@ -18,6 +18,26 @@ import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
 import FilterControlModel from '../components/FilterControlModel';
+
+const LS_KEY = 'vehicleModelListState';
+
+const getInitialState = () => {
+  try {
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+  }
+  return {
+    sortField: 'name' as SortField,
+    sortDir: 'asc' as SortDirection,
+    page: 1,
+    pageSize: 5,
+    filterField: 'name' as FilterFieldModel,
+    filterValue: '',
+  };
+};
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
@@ -39,14 +59,14 @@ const filterFieldOptionsModel: { value: FilterFieldModel; label: string }[] = [
 
 const VehicleModelComponent: React.FC = () => {
   const navigate = useNavigate();
+  const initialState = getInitialState();
 
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortDir, setSortDir] = useState<SortDirection>('asc');
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(5);
-
-  const [filterField, setFilterField] = useState<FilterFieldModel>('name');
-  const [filterValue, setFilterValue] = useState<string>('');
+  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
+  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
+  const [page, setPage] = useState<number>(initialState.page);
+  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
+  const [filterField, setFilterField] = useState<FilterFieldModel>(initialState.filterField);
+  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
 
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,6 +74,23 @@ const VehicleModelComponent: React.FC = () => {
   useEffect(() => {
     setPage(1);
   }, [sortField, sortDir, pageSize, filterField, filterValue]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        LS_KEY,
+        JSON.stringify({
+          sortField,
+          sortDir,
+          page,
+          pageSize,
+          filterField,
+          filterValue,
+        })
+      );
+    } catch {
+      }
+  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
 
   const queryParams: SortParams & {
     page: number;
