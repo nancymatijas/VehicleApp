@@ -12,7 +12,7 @@ export type VehicleModelWithMake = VehicleModel & {
   VehicleMake: { name: string } | null;
 };
 
-export type SortField = 'id' | 'name' | 'abrv';
+export type SortField = 'id' | 'name' | 'abrv' | 'make_id';
 export type SortDirection = 'asc' | 'desc';
 
 export type SortParams = {
@@ -25,7 +25,12 @@ export type PagingParams = {
   pageSize?: number;
 };
 
-export type VehicleModelQueryParams = SortParams & PagingParams;
+export type FilterFieldModel = 'name' | 'abrv' | 'make_id';
+
+export type VehicleModelQueryParams = SortParams & PagingParams & {
+  filterField?: FilterFieldModel;
+  filterValue?: string;
+};
 
 export const vehicleModelApi = createApi({
   reducerPath: 'vehicleModelApi',
@@ -38,11 +43,13 @@ export const vehicleModelApi = createApi({
         const ascending = params?.direction !== 'desc';
         const page = params?.page ?? 1;
         const pageSize = params?.pageSize ?? 10;
+        const filterField = params?.filterField;
+        const filterValue = params?.filterValue;
 
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const { data, error } = await supabase
+        let query = supabase
           .from('VehicleModel')
           .select(
             `
@@ -56,6 +63,16 @@ export const vehicleModelApi = createApi({
           )
           .order(field as string, { ascending })
           .range(from, to);
+
+        if (filterField && filterValue && filterValue.trim() !== '') {
+          if (filterField === 'make_id') {
+            query = query.eq('make_id', Number(filterValue));
+          } else {
+            query = query.ilike(filterField, `%${filterValue.trim()}%`);
+          }
+        }
+
+        const { data, error } = await query;
 
         if (error) return { error };
 

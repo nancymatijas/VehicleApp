@@ -20,7 +20,14 @@ export type PagingParams = {
   pageSize?: number;
 };
 
-export type VehicleMakeQueryParams = SortParams & PagingParams;
+/**
+ * filterField: polje po kojem se filtrira (name ili abrv)
+ * filterValue: vrijednost za filtriranje (string)
+ */
+export type VehicleMakeQueryParams = SortParams & PagingParams & {
+  filterField?: 'name' | 'abrv';
+  filterValue?: string;
+};
 
 export const vehicleMakeApi = createApi({
   reducerPath: 'vehicleMakeApi',
@@ -34,14 +41,23 @@ export const vehicleMakeApi = createApi({
         const page = params?.page ?? 1;
         const pageSize = params?.pageSize ?? 10;
 
+        const filterField = params?.filterField;
+        const filterValue = params?.filterValue;
+
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const { data, error } = await supabase
+        let query = supabase
           .from('VehicleMake')
           .select('*', { count: 'exact' })
-          .order(field as string, { ascending })
+          .order(field, { ascending })
           .range(from, to);
+
+        if (filterField && filterValue && filterValue.trim() !== '') {
+          query = query.ilike(filterField, `%${filterValue.trim()}%`);
+        }
+
+        const { data, error } = await query;
 
         if (error) return { error };
 
@@ -56,7 +72,6 @@ export const vehicleMakeApi = createApi({
           .from('VehicleMake')
           .insert([newMake])
           .single();
-
         if (error) return { error };
         return { data: data as VehicleMake };
       },
@@ -71,7 +86,6 @@ export const vehicleMakeApi = createApi({
           .update(rest)
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: data as VehicleMake };
       },
@@ -85,7 +99,6 @@ export const vehicleMakeApi = createApi({
           .delete()
           .eq('id', id)
           .single();
-
         if (error) return { error };
         return { data: { id } };
       },
@@ -94,6 +107,7 @@ export const vehicleMakeApi = createApi({
   }),
 });
 
+// Eksport hookova za korištenje u komponentama
 export const {
   useGetVehicleMakesQuery,
   useCreateVehicleMakeMutation,

@@ -14,6 +14,7 @@ import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import VehicleForm, { FieldConfig } from '../components/VehicleForm';
+import FilterControlMake, { FilterFieldMake } from '../components/FilterControlMake';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -26,6 +27,11 @@ const directionOptions: SortOption[] = [
   { value: 'desc', label: 'DESC' },
 ];
 
+const filterFieldOptionsMake: { value: FilterFieldMake; label: string }[] = [
+  { value: 'name', label: 'Name' },
+  { value: 'abrv', label: 'Abbreviation' },
+];
+
 const VehicleMakeComponent: React.FC = () => {
   const navigate = useNavigate();
 
@@ -34,18 +40,23 @@ const VehicleMakeComponent: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
 
+  const [filterField, setFilterField] = useState<'name' | 'abrv'>('name');
+  const [filterValue, setFilterValue] = useState<string>('');
+
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setPage(1);
-  }, [sortField, sortDir, pageSize]);
+  }, [sortField, sortDir, pageSize, filterField, filterValue]);
 
-  const queryParams: SortParams & { page: number; pageSize: number } = {
+  const queryParams: SortParams & { page: number; pageSize: number; filterField?: 'name' | 'abrv'; filterValue?: string } = {
     field: sortField,
     direction: sortDir,
     page,
     pageSize,
+    filterField: filterValue.trim() !== '' ? (filterField as 'name' | 'abrv') : undefined,
+    filterValue: filterValue.trim() !== '' ? filterValue : undefined,
   };
 
   const { data: makes, error, isLoading } = useGetVehicleMakesQuery(queryParams);
@@ -114,7 +125,16 @@ const VehicleMakeComponent: React.FC = () => {
         Back to Homepage
       </button>
       <h2 className="heading">Vehicle Manufacturers</h2>
-      <div className="sortControl">
+
+      <FilterControlMake
+        filterField={filterField}
+        filterValue={filterValue}
+        onFilterFieldChange={setFilterField}
+        onFilterValueChange={setFilterValue}
+        filterFieldOptions={filterFieldOptionsMake}
+      />
+
+      <div className="sortControl" style={{ marginBottom: 12, display: 'flex', gap: '12px', alignItems: 'center' }}>
         <SortSelect
           options={sortOptions}
           value={sortField}
@@ -128,6 +148,7 @@ const VehicleMakeComponent: React.FC = () => {
           label="Order By"
         />
       </div>
+
       <VehicleForm
         defaultValues={defaultValues}
         fields={fields}
@@ -137,6 +158,7 @@ const VehicleMakeComponent: React.FC = () => {
         onCancel={editId !== null ? onCancelEdit : undefined}
         isEditMode={editId !== null}
       />
+
       <EntityTable
         data={makes || []}
         columns={columns}
@@ -145,6 +167,7 @@ const VehicleMakeComponent: React.FC = () => {
         editDisabled={isDeleting || isCreating || isUpdating}
         deleteDisabled={isDeleting || isCreating || isUpdating}
       />
+
       <PaginationControl
         page={page}
         pageSize={pageSize}

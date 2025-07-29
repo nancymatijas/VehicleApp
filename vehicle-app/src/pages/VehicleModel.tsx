@@ -10,12 +10,14 @@ import {
   SortField,
   SortDirection,
   SortParams,
+  FilterFieldModel,
 } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import SortSelect, { SortOption } from '../components/SortSelect';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
+import FilterControlModel from '../components/FilterControlModel';
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
@@ -29,6 +31,12 @@ const directionOptions: SortOption[] = [
   { value: 'desc', label: 'DESC' },
 ];
 
+const filterFieldOptionsModel: { value: FilterFieldModel; label: string }[] = [
+  { value: 'name', label: 'Model Name' },
+  { value: 'abrv', label: 'Abbreviation' },
+  { value: 'make_id', label: 'Manufacturer' },
+];
+
 const VehicleModelComponent: React.FC = () => {
   const navigate = useNavigate();
 
@@ -37,18 +45,28 @@ const VehicleModelComponent: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
 
+  const [filterField, setFilterField] = useState<FilterFieldModel>('name');
+  const [filterValue, setFilterValue] = useState<string>('');
+
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setPage(1);
-  }, [sortField, sortDir, pageSize]);
+  }, [sortField, sortDir, pageSize, filterField, filterValue]);
 
-  const queryParams: SortParams & { page: number; pageSize: number } = {
+  const queryParams: SortParams & {
+    page: number;
+    pageSize: number;
+    filterField?: FilterFieldModel;
+    filterValue?: string;
+  } = {
     field: sortField,
     direction: sortDir,
     page,
     pageSize,
+    filterField: filterValue.trim() !== '' ? filterField : undefined,
+    filterValue: filterValue.trim() !== '' ? filterValue : undefined,
   };
 
   const { data: models, error, isLoading } = useGetVehicleModelsQuery(queryParams);
@@ -59,6 +77,9 @@ const VehicleModelComponent: React.FC = () => {
   const [deleteVehicleModel, { isLoading: isDeleting }] = useDeleteVehicleModelMutation();
 
   const makesOptions: Option[] = makes ? makes.map((m) => ({ label: m.name, value: m.id })) : [];
+  const manufacturerOptions: { label: string; value: string }[] = makes
+    ? makes.map((m) => ({ label: m.name, value: m.id.toString() }))
+    : [];
 
   const defaultValues = editId !== null
     ? models?.find((m) => m.id === editId) ?? { name: '', abrv: '', make_id: 0 }
@@ -135,7 +156,17 @@ const VehicleModelComponent: React.FC = () => {
         Back to Homepage
       </button>
       <h2 className="heading">Vehicle Models</h2>
-      <div className="sortControls">
+
+      <FilterControlModel
+        filterField={filterField}
+        filterValue={filterValue}
+        onFilterFieldChange={setFilterField}
+        onFilterValueChange={setFilterValue}
+        filterFieldOptions={filterFieldOptionsModel}
+        manufacturerOptions={manufacturerOptions}
+      />
+
+      <div className="sortControls" style={{ marginBottom: 12, display: 'flex', gap: '12px', alignItems: 'center' }}>
         <SortSelect
           options={sortOptions}
           value={sortField}
