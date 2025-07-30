@@ -1,5 +1,4 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
-import { supabase } from './supabaseClient';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export type VehicleModel = {
   id: number;
@@ -8,8 +7,12 @@ export type VehicleModel = {
   abrv: string;
 };
 
+export type VehicleMake = {
+  name: string;
+};
+
 export type VehicleModelWithMake = VehicleModel & {
-  VehicleMake: { name: string } | null;
+  VehicleMake: VehicleMake | null;
 };
 
 export type SortField = 'id' | 'name' | 'abrv' | 'make_id';
@@ -32,98 +35,89 @@ export type VehicleModelQueryParams = SortParams & PagingParams & {
   filterValue?: string;
 };
 
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseApiKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseApiKey) {
+  throw new Error('SUPABASE_URL i SUPABASE_API_KEY moraju biti definirani u .env');
+}
+
 export const vehicleModelApi = createApi({
   reducerPath: 'vehicleModelApi',
-  baseQuery: fakeBaseQuery(),
+  baseQuery: fetchBaseQuery({
+    baseUrl: supabaseUrl,
+    prepareHeaders: (headers) => {
+      headers.set('apikey', supabaseApiKey);
+      headers.set('Content-Type', 'application/json');
+      return headers;
+    },
+  }),
   tagTypes: ['VehicleModel'],
   endpoints: (builder) => ({
     getVehicleModels: builder.query<VehicleModelWithMake[], VehicleModelQueryParams | void>({
-      async queryFn(params) {
-        const field = params?.field || 'id';
-        const ascending = params?.direction !== 'desc';
+      query: (params) => {
+        let url = 'VehicleModel';
+        const queryParams: string[] = [];
+
         const page = params?.page ?? 1;
         const pageSize = params?.pageSize ?? 10;
-        const filterField = params?.filterField;
-        const filterValue = params?.filterValue;
+        const offset = (page - 1) * pageSize;
+        queryParams.push(`limit=${pageSize}`);
+        queryParams.push(`offset=${offset}`);
 
-        const from = (page - 1) * pageSize;
-        const to = from + pageSize - 1;
+        const sortField = params?.field ?? 'id';
+        const sortDirection = params?.direction ?? 'asc';
+        queryParams.push(`order=${sortField}.${sortDirection}`);
 
-        let query = supabase
-          .from('VehicleModel')
-          .select(
-            `
-            id,
-            name,
-            abrv,
-            make_id,
-            VehicleMake(name)
-            `,
-            { count: 'exact' }
-          )
-          .order(field as string, { ascending })
-          .range(from, to);
-
-        if (filterField && filterValue && filterValue.trim() !== '') {
-          if (filterField === 'make_id') {
-            query = query.eq('make_id', Number(filterValue));
+        if (params?.filterField && params?.filterValue && params.filterValue.trim() !== '') {
+          if (params.filterField === 'make_id') {
+            queryParams.push(`${params.filterField}=eq.${params.filterValue.trim()}`);
           } else {
-            query = query.ilike(filterField, `%${filterValue.trim()}%`);
+            queryParams.push(`${params.filterField}=ilike.*${params.filterValue.trim()}*`);
           }
         }
 
-        const { data, error } = await query;
+        queryParams.push('select=id,name,abrv,make_id,VehicleMake(name)');
 
-        if (error) return { error };
+        if (queryParams.length > 0) {
+          url += '?' + queryParams.join('&');
+        }
 
-        const mappedData =
-          data?.map((item) => ({
-            ...item,
-            VehicleMake: Array.isArray(item.VehicleMake) && item.VehicleMake.length > 0 ? item.VehicleMake[0] : null,
-          })) || [];
-
-        return { data: mappedData as VehicleModelWithMake[] };
+        return { url, method: 'GET' };
       },
-      providesTags: ['VehicleModel'],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: 'VehicleModel' as const, id })),
+              { type: 'VehicleModel', id: 'LIST' },
+            ]
+          : [{ type: 'VehicleModel', id: 'LIST' }],
     }),
 
     createVehicleModel: builder.mutation<VehicleModel, Omit<VehicleModel, 'id'>>({
-      async queryFn(newModel) {
-        const { data, error } = await supabase
-          .from('VehicleModel')
-          .insert([newModel])
-          .single();
-        if (error) return { error };
-        return { data: data as VehicleModel };
-      },
-      invalidatesTags: ['VehicleModel'],
+      query: (newModel) => ({
+        url: 'VehicleModel',
+        method: 'POST',
+        body: newModel,
+      }),
+      invalidatesTags: [{ type: 'VehicleModel', id: 'LIST' }],
     }),
 
     updateVehicleModel: builder.mutation<VehicleModel, VehicleModel>({
-      async queryFn(updatedModel) {
-        const { id, ...rest } = updatedModel;
-        const { data, error } = await supabase
-          .from('VehicleModel')
-          .update(rest)
-          .eq('id', id)
-          .single();
-        if (error) return { error };
-        return { data: data as VehicleModel };
-      },
-      invalidatesTags: ['VehicleModel'],
+      query: ({ id, ...patch }) => ({
+        url: `VehicleModel?id=eq.${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+      invalidatesTags: (result, error, arg) => [{ type: 'VehicleModel', id: arg.id }],
     }),
 
     deleteVehicleModel: builder.mutation<{ id: number }, number>({
-      async queryFn(id) {
-        const { error } = await supabase
-          .from('VehicleModel')
-          .delete()
-          .eq('id', id)
-          .single();
-        if (error) return { error };
-        return { data: { id } };
-      },
-      invalidatesTags: ['VehicleModel'],
+      query: (id) => ({
+        url: `VehicleModel?id=eq.${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'VehicleModel', id }],
     }),
   }),
 });
