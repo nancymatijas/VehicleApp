@@ -144,7 +144,7 @@ function VehicleForm<T extends FieldValues>({
         {isEditMode ? 'Save' : 'Add'}
       </button>
 
-      {isEditMode && onCancel && (
+      {onCancel && (
         <button
           type="button"
           onClick={() => {
@@ -152,7 +152,7 @@ function VehicleForm<T extends FieldValues>({
             onCancel();
           }}
           disabled={isSubmitting}
-          className={`vehicle-form__button vehicle-form__button--cancel${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
+          className="vehicle-form__button vehicle-form__button--cancel"
         >
           Cancel
         </button>
