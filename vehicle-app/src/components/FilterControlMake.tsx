@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/FilterControl.css';
 
 export type FilterFieldMake = 'name' | 'abrv';
 
@@ -18,13 +19,11 @@ const FilterControlMake: React.FC<FilterControlMakeProps> = ({
   filterFieldOptions,
 }) => {
   return (
-    <div
-      className="filterControl"
-      style={{ marginBottom: 12, display: 'flex', gap: '8px', alignItems: 'center' }}
-    >
-      <label htmlFor="filterField">Filter by:</label>
+    <div className="filter-control">
+      <label htmlFor="filterField" className="filter-control__label">Filter by:</label>
       <select
         id="filterField"
+        className="filter-control__select"
         value={filterField}
         onChange={(e) => onFilterFieldChange(e.target.value as FilterFieldMake)}
       >
@@ -37,10 +36,10 @@ const FilterControlMake: React.FC<FilterControlMakeProps> = ({
 
       <input
         type="text"
-        placeholder={`Filter by ${filterField}...`}
+        className="filter-control__input"
+        placeholder={`Filter by ${filterField === 'abrv' ? 'Abbreviation' : 'Name'}...`}
         value={filterValue}
         onChange={(e) => onFilterValueChange(e.target.value)}
-        style={{ flexGrow: 1 }}
       />
     </div>
   );

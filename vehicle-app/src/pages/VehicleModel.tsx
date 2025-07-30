@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleModelsQuery,
@@ -13,6 +13,28 @@ import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlModel from '../components/FilterControlModel';
 import SortSelect, { SortOption } from '../components/SortSelect';
+import { handleEditModel, handleDeleteModel } from '../utils/vehicleHandlers';
+
+const LS_KEY = 'vehicleModelListState';
+
+function getInitialState() {
+  try {
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+  }
+
+  return {
+    sortField: 'name' as SortField,
+    sortDir: 'asc' as SortDirection,
+    page: 1,
+    pageSize: 5,
+    filterField: 'name' as FilterFieldModel,
+    filterValue: '',
+  };
+}
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
@@ -32,15 +54,26 @@ const filterFieldOptionsModel: { value: FilterFieldModel; label: string }[] = [
   { value: 'make_id', label: 'Manufacturer' },
 ];
 
-const VehicleModelComponent: React.FC = () => {
+function VehicleModelComponent(): React.JSX.Element {
   const navigate = useNavigate();
-  const [sortField, setSortField] = useState<SortField>('name');
-  const [sortDir, setSortDir] = useState<SortDirection>('asc');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [filterField, setFilterField] = useState<FilterFieldModel>('name');
-  const [filterValue, setFilterValue] = useState('');
+  const initialState = getInitialState();
+
+  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
+  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
+  const [page, setPage] = useState<number>(initialState.page);
+  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
+  const [filterField, setFilterField] = useState<FilterFieldModel>(initialState.filterField);
+  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
+
+  useEffect(() => {
+    localStorage.setItem(
+      LS_KEY,
+      JSON.stringify({ sortField, sortDir, page, pageSize, filterField, filterValue }),
+    );
+  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
+
   const { data: makes, isLoading: isLoadingMakes } = useGetVehicleMakesQuery();
+
   const manufacturerOptions = makes
     ? makes.map((make) => ({ label: make.name, value: make.id.toString() }))
     : [];
@@ -55,6 +88,7 @@ const VehicleModelComponent: React.FC = () => {
   };
 
   const { data: models, error, isLoading } = useGetVehicleModelsQuery(queryParams);
+
   const [deleteVehicleModel, { isLoading: isDeleting }] = useDeleteVehicleModelMutation();
 
   const columns: Column<VehicleModelWithMake>[] = [
@@ -67,25 +101,23 @@ const VehicleModelComponent: React.FC = () => {
     },
   ];
 
-  const onDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this model?')) {
-      try {
-        await deleteVehicleModel(id).unwrap();
-      } catch {
-        alert('Error deleting model.');
-      }
-    }
-  };
+  function onEdit(model: VehicleModelWithMake) {
+    handleEditModel(model, navigate);
+  }
 
-  const onEdit = (model: VehicleModelWithMake) => {
-    navigate(`/vehicle-models/edit/${model.id}`);
-  };
+  async function onDelete(id: number) {
+    await handleDeleteModel(id, deleteVehicleModel);
+  }
 
   return (
     <div className="container">
-      <h2 className="heading">Vehicle Models</h2>
+      <h1 className="heading">Vehicle Models</h1>
 
-      <button onClick={() => navigate('/vehicle-models/create')}  className="vehicle-add__button">
+      <button
+        type="button"
+        className="vehicle-add__button"
+        onClick={() => navigate('/vehicle-models/create')}
+      >
         Add New Model
       </button>
 
@@ -100,16 +132,16 @@ const VehicleModelComponent: React.FC = () => {
 
       <div className="sortControls">
         <SortSelect
+          label="Sort By"
           options={sortOptions}
           value={sortField}
           onChange={(v) => setSortField(v as SortField)}
-          label="Sort By"
         />
         <SortSelect
+          label="Order"
           options={directionOptions}
           value={sortDir}
           onChange={(v) => setSortDir(v as SortDirection)}
-          label="Order"
         />
       </div>
 
@@ -126,6 +158,7 @@ const VehicleModelComponent: React.FC = () => {
             editDisabled={isDeleting}
             deleteDisabled={isDeleting}
           />
+
           <PaginationControl
             page={page}
             pageSize={pageSize}
@@ -144,6 +177,6 @@ const VehicleModelComponent: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 export default VehicleModelComponent;

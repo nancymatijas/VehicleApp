@@ -1,7 +1,18 @@
+.vehicle-form-container {
+  display: flex;
+  justify-content: center; 
+  align-items: center;    
+  padding: 16px;          
+  box-sizing: border-box;
+}
+
 .vehicle-form {
-  margin-bottom: 24px;
   max-width: 480px;
   width: 100%;
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #212529;
 }
@@ -76,6 +87,7 @@
   align-items: center;
   justify-content: center;
   min-width: 90px;
+  margin-right: 8px;
 }
 
 .vehicle-form__button:hover:not(:disabled),
@@ -103,6 +115,7 @@
   box-shadow: 0 0 0 3px rgba(90, 98, 104, 0.4);
 }
 
+/*
 @media (max-width: 480px) {
   .vehicle-form {
     padding: 0 12px;
@@ -115,3 +128,4 @@
     margin-top: 8px;
   }
 }
+*/

@@ -1,4 +1,5 @@
 import React from 'react';
+import '../styles/FilterControl.css';
 
 export type FilterFieldModel = 'name' | 'abrv' | 'make_id';
 
@@ -20,18 +21,16 @@ const FilterControlModel: React.FC<FilterControlModelProps> = ({
   manufacturerOptions,
 }) => {
   return (
-    <div
-      className="filterControl"
-      style={{ marginBottom: 12, display: 'flex', gap: '8px', alignItems: 'center' }}
-    >
-      <label htmlFor="filterField">Filter by:</label>
+    <div className="filter-control">
+      <label htmlFor="filterField" className="filter-control__label">Filter by:</label>
       <select
         id="filterField"
+        className="filter-control__select"
         value={filterField}
         onChange={(e) => onFilterFieldChange(e.target.value as FilterFieldModel)}
       >
         {filterFieldOptions.map((opt) => (
-          <option key={opt.value} value={opt.value}>
+          <option key={opt.value} value={opt.value} className="filter-control__option">
             {opt.label}
           </option>
         ))}
@@ -39,13 +38,13 @@ const FilterControlModel: React.FC<FilterControlModelProps> = ({
 
       {filterField === 'make_id' ? (
         <select
+          className="filter-control__select filter-control__select--manufacturer"
           value={filterValue}
           onChange={(e) => onFilterValueChange(e.target.value)}
-          style={{ flexGrow: 1 }}
         >
-          <option value="">All</option>
+          <option value="" className="filter-control__option">All</option>
           {manufacturerOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={opt.value} className="filter-control__option">
               {opt.label}
             </option>
           ))}
@@ -53,10 +52,10 @@ const FilterControlModel: React.FC<FilterControlModelProps> = ({
       ) : (
         <input
           type="text"
+          className="filter-control__input"
           placeholder={`Filter by ${filterField === 'abrv' ? 'Abbreviation' : 'Model Name'}...`}
           value={filterValue}
           onChange={(e) => onFilterValueChange(e.target.value)}
-          style={{ flexGrow: 1 }}
         />
       )}
     </div>

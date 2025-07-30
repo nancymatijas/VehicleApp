@@ -59,111 +59,112 @@ function VehicleForm<T extends FieldValues>({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(wrappedSubmit)}
-      className="vehicle-form"
-    >
-      {fields.map(({ label, name, required, type = 'text', placeholder }) => (
-        <div
-          key={name}
-          className="vehicle-form__field"
-        >
-          <label
-            htmlFor={name}
-            className="vehicle-form__label"
-          >
-            {label}
-          </label>
-          <input
-            id={name}
-            type={type}
-            placeholder={placeholder || label}
-            disabled={isSubmitting}
-            {...register(
-              name as any,
-              required ? { required: `${label} is required` } : {},
-            )}
-            className="vehicle-form__input"
-          />
-          {errors[name] && (
-            <p className="vehicle-form__error">
-              {(errors[name] as any).message}
-            </p>
-          )}
-        </div>
-      ))}
-
-      {selectFields && selectFields.map(({ label, name, options, required, disabled }) => (
-        <div
-          key={name}
-          className="vehicle-form__field"
-        >
-          <label
-            htmlFor={name}
-            className="vehicle-form__label"
-          >
-            {label}
-          </label>
-          <select
-            id={name}
-            disabled={disabled || isSubmitting}
-            {...register(
-              name as any,
-              required
-                ? { required: `${label} is required`, valueAsNumber: true }
-                : { valueAsNumber: true },
-            )}
-            className="vehicle-form__select"
-          >
-            <option value="">
-              {`Select ${label}`}
-            </option>
-            {options.map(({ label: optLabel, value }) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {optLabel}
-              </option>
-            ))}
-          </select>
-          {errors[name] && (
-            <p className="vehicle-form__error">
-              {(errors[name] as any).message}
-            </p>
-          )}
-        </div>
-      ))}
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={`vehicle-form__button${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
-        style={{ marginRight: isEditMode && onCancel ? 8 : 0 }}
+    <div className="vehicle-form-container">
+      <form
+        onSubmit={handleSubmit(wrappedSubmit)}
+        className="vehicle-form"
       >
-        {isEditMode ? 'Save' : 'Add'}
-      </button>
+        {fields.map(({ label, name, required, type = 'text', placeholder }) => (
+          <div
+            key={name}
+            className="vehicle-form__field"
+          >
+            <label
+              htmlFor={name}
+              className="vehicle-form__label"
+            >
+              {label}
+            </label>
+            <input
+              id={name}
+              type={type}
+              placeholder={placeholder || label}
+              disabled={isSubmitting}
+              {...register(
+                name as any,
+                required ? { required: `${label} is required` } : {},
+              )}
+              className="vehicle-form__input"
+            />
+            {errors[name] && (
+              <p className="vehicle-form__error">
+                {(errors[name] as any).message}
+              </p>
+            )}
+          </div>
+        ))}
 
-      {onCancel && (
+        {selectFields && selectFields.map(({ label, name, options, required, disabled }) => (
+          <div
+            key={name}
+            className="vehicle-form__field"
+          >
+            <label
+              htmlFor={name}
+              className="vehicle-form__label"
+            >
+              {label}
+            </label>
+            <select
+              id={name}
+              disabled={disabled || isSubmitting}
+              {...register(
+                name as any,
+                required
+                  ? { required: `${label} is required`, valueAsNumber: true }
+                  : { valueAsNumber: true },
+              )}
+              className="vehicle-form__select"
+            >
+              <option value="">
+                {`Select ${label}`}
+              </option>
+              {options.map(({ label: optLabel, value }) => (
+                <option
+                  key={value}
+                  value={value}
+                >
+                  {optLabel}
+                </option>
+              ))}
+            </select>
+            {errors[name] && (
+              <p className="vehicle-form__error">
+                {(errors[name] as any).message}
+              </p>
+            )}
+          </div>
+        ))}
+
         <button
-          type="button"
-          onClick={() => {
-            reset(defaultValues);
-            onCancel();
-          }}
+          type="submit"
           disabled={isSubmitting}
-          className="vehicle-form__button vehicle-form__button--cancel"
+          className={`vehicle-form__button${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
         >
-          Cancel
+          {isEditMode ? 'Save' : 'Add'}
         </button>
-      )}
 
-      {errorMessage && (
-        <div className="vehicle-form__error-message">
-          {errorMessage}
-        </div>
-      )}
-    </form>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={() => {
+              reset(defaultValues);
+              onCancel();
+            }}
+            disabled={isSubmitting}
+            className="vehicle-form__button vehicle-form__button--cancel"
+          >
+            Cancel
+          </button>
+        )}
+
+        {errorMessage && (
+          <div className="vehicle-form__error-message">
+            {errorMessage}
+          </div>
+        )}
+      </form>
+    </div>
   );
 }
 

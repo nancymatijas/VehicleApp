@@ -67,12 +67,12 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
-
+/*
 @media (max-width: 600px) {
   .entity-table th,
   .entity-table td {
     padding: 10px 8px;
     font-size: 0.9rem;
   }
-
 }
+*/

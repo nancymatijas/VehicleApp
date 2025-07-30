@@ -1,0 +1,48 @@
+import { VehicleMake } from '../api/vehicleMakeApi';
+import { VehicleModelWithMake } from '../api/vehicleModelApi';
+
+export function handleEditMake(
+  make: VehicleMake,
+  navigate: (path: string) => void
+): void {
+  navigate(`/vehicle-makes/edit/${make.id}`);
+}
+
+export async function handleDeleteMake(
+  id: number,
+  deleteVehicleMake: (id: number) => Promise<any>
+): Promise<boolean> {
+  if (!window.confirm('Are you sure you want to delete this manufacturer?')) {
+    return false;
+  }
+  try {
+    await deleteVehicleMake(id);
+    return true;
+  } catch (error) {
+    alert('Error deleting the manufacturer.');
+    return false;
+  }
+}
+
+export function handleEditModel(
+  model: VehicleModelWithMake,
+  navigate: (path: string) => void
+): void {
+  navigate(`/vehicle-models/edit/${model.id}`);
+}
+
+export async function handleDeleteModel(
+  id: number,
+  deleteVehicleModel: (id: number) => Promise<any>
+): Promise<boolean> {
+  if (!window.confirm('Are you sure you want to delete this model?')) {
+    return false;
+  }
+  try {
+    await deleteVehicleModel(id);
+    return true;
+  } catch (error) {
+    alert('Error deleting model.');
+    return false;
+  }
+}

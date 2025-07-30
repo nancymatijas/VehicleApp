@@ -1,14 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleMakesQuery,
   useDeleteVehicleMakeMutation,
   VehicleMake,
+  SortField,
+  SortDirection,
 } from '../api/vehicleMakeApi';
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlMake, { FilterFieldMake } from '../components/FilterControlMake';
 import SortSelect, { SortOption } from '../components/SortSelect';
+import { handleEditMake, handleDeleteMake } from '../utils/vehicleHandlers';
+
+const LS_KEY = 'vehicleMakeListState';
+
+function getInitialState() {
+  try {
+    const stored = localStorage.getItem(LS_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+  }
+
+  return {
+    sortField: 'name' as SortField,
+    sortDir: 'asc' as SortDirection,
+    page: 1,
+    pageSize: 5,
+    filterField: 'name' as FilterFieldMake,
+    filterValue: '',
+  };
+}
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -26,14 +50,24 @@ const filterFieldOptionsMake: { value: FilterFieldMake; label: string }[] = [
   { value: 'abrv', label: 'Abbreviation' },
 ];
 
-const VehicleMakeComponent: React.FC = () => {
+function VehicleMakeComponent(): React.JSX.Element {
   const navigate = useNavigate();
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(5);
-  const [sortField, setSortField] = React.useState<'id' | 'name' | 'abrv'>('name');
-  const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
-  const [filterField, setFilterField] = React.useState<FilterFieldMake>('name');
-  const [filterValue, setFilterValue] = React.useState('');
+  const initialState = getInitialState();
+
+  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
+  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
+  const [page, setPage] = useState<number>(initialState.page);
+  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
+  const [filterField, setFilterField] = useState<FilterFieldMake>(initialState.filterField);
+  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
+
+  useEffect(() => {
+    localStorage.setItem(
+      LS_KEY,
+      JSON.stringify({ sortField, sortDir, page, pageSize, filterField, filterValue }),
+    );
+  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
+
   const { data: makes, error, isLoading } = useGetVehicleMakesQuery({
     page,
     pageSize,
@@ -42,6 +76,7 @@ const VehicleMakeComponent: React.FC = () => {
     filterField: filterValue.trim() === '' ? undefined : filterField,
     filterValue: filterValue.trim() === '' ? undefined : filterValue.trim(),
   });
+
   const [deleteVehicleMake, { isLoading: isDeleting }] = useDeleteVehicleMakeMutation();
 
   const columns: Column<VehicleMake>[] = [
@@ -50,25 +85,23 @@ const VehicleMakeComponent: React.FC = () => {
     { header: 'Abbreviation', accessor: 'abrv' },
   ];
 
-  const onEdit = (make: VehicleMake) => {
-    navigate(`/vehicle-makes/edit/${make.id}`);
-  };
+  function onEdit(make: VehicleMake) {
+    handleEditMake(make, navigate);
+  }
 
-  const onDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this manufacturer?')) {
-      try {
-        await deleteVehicleMake(id).unwrap();
-      } catch {
-        alert('Error deleting the manufacturer.');
-      }
-    }
-  };
+  async function onDelete(id: number) {
+    await handleDeleteMake(id, deleteVehicleMake);
+  }
 
   return (
     <div className="container">
-      <h2 className="heading">Vehicle Manufacturers</h2>
+      <h1 className="heading">Vehicle Manufacturers</h1>
 
-      <button onClick={() => navigate('/vehicle-makes/create')} className="vehicle-add__button">
+      <button
+        type="button"
+        className="vehicle-add__button"
+        onClick={() => navigate('/vehicle-makes/create')}
+      >
         Add New Manufacturer
       </button>
 
@@ -81,11 +114,21 @@ const VehicleMakeComponent: React.FC = () => {
       />
 
       <div className="sortControls">
-        <SortSelect options={sortOptions} value={sortField} onChange={(v) => setSortField(v as any)} label="Sort By" />
-        <SortSelect options={directionOptions} value={sortDir} onChange={(v) => setSortDir(v as any)} label="Order" />
+        <SortSelect
+          label="Sort By"
+          options={sortOptions}
+          value={sortField}
+          onChange={(v) => setSortField(v as SortField)}
+        />
+        <SortSelect
+          label="Order"
+          options={directionOptions}
+          value={sortDir}
+          onChange={(v) => setSortDir(v as SortDirection)}
+        />
       </div>
 
-      {error && <div>Error loading manufacturers.</div>}
+      {error && <div style={{ color: 'red' }}>Error loading manufacturers.</div>}
       {isLoading && <div>Loading...</div>}
 
       {!isLoading && makes && (
@@ -102,9 +145,9 @@ const VehicleMakeComponent: React.FC = () => {
           <PaginationControl
             page={page}
             pageSize={pageSize}
-            onPrev={() => setPage((p) => Math.max(1, p - 1))}
+            onPrev={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
             onNext={() => {
-              if (makes.length === pageSize) setPage((p) => p + 1);
+              if (makes.length === pageSize) setPage((currentPage) => currentPage + 1);
             }}
             disablePrev={page === 1}
             disableNext={!makes || makes.length < pageSize}
@@ -117,6 +160,6 @@ const VehicleMakeComponent: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 export default VehicleMakeComponent;
