@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/PaginationSort.css';
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 interface PaginationProps {
   page: number;
@@ -32,7 +33,7 @@ const PaginationControl: React.FC<PaginationProps> = ({
       disabled={disablePrev}
       className="pagination-control__button"
     >
-      &lt;
+      <IoIosArrowBack />
     </button>
     <span className="pagination-control__page-info">
       {`${page}`}
@@ -44,7 +45,7 @@ const PaginationControl: React.FC<PaginationProps> = ({
       disabled={disableNext}
       className="pagination-control__button"
     >
-      &gt;
+      <IoIosArrowForward />
     </button>
   </div>
   {onPageSizeChange && (

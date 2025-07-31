@@ -136,6 +136,7 @@ function VehicleForm<T extends FieldValues>({
           </div>
         ))}
 
+        <div className="vehicle-form__actions">
         <button
           type="submit"
           disabled={isSubmitting}
@@ -158,6 +159,7 @@ function VehicleForm<T extends FieldValues>({
           </button>
         )}
 
+        </div>
         {errorMessage && (
           <div className="vehicle-form__error-message">
             {errorMessage}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import {
   useGetVehicleModelsQuery,
@@ -17,11 +18,20 @@ import { handleEditModel, handleDeleteModel } from '../utils/vehicleHandlers';
 
 const LS_KEY = 'vehicleModelListState';
 
-function getInitialState() {
+interface VehicleModelListState {
+  sortField: SortField;
+  sortDir: SortDirection;
+  page: number;
+  pageSize: number;
+  filterField: FilterFieldModel;
+  filterValue: string;
+}
+
+function getInitialState(): VehicleModelListState {
   try {
     const stored = localStorage.getItem(LS_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      return JSON.parse(stored) as VehicleModelListState;
     }
   } catch {
   }
@@ -84,7 +94,7 @@ function VehicleModelComponent(): React.JSX.Element {
     page,
     pageSize,
     filterField: filterValue.trim() !== '' ? filterField : undefined,
-    filterValue: filterValue.trim() !== '' ? filterValue : undefined,
+    filterValue: filterValue.trim() !== '' ? filterValue.trim() : undefined,
   };
 
   const { data: models, error, isLoading } = useGetVehicleModelsQuery(queryParams);
@@ -101,12 +111,12 @@ function VehicleModelComponent(): React.JSX.Element {
     },
   ];
 
-  function onEdit(model: VehicleModelWithMake) {
+  function onEdit(model: VehicleModelWithMake): void {
     handleEditModel(model, navigate);
   }
 
-  async function onDelete(id: number) {
-    await handleDeleteModel(id, deleteVehicleModel);
+  async function onDelete(id: number): Promise<void> {
+    await handleDeleteModel(id, (id) => deleteVehicleModel(id).unwrap());
   }
 
   return (
@@ -117,8 +127,9 @@ function VehicleModelComponent(): React.JSX.Element {
         type="button"
         className="vehicle-add__button"
         onClick={() => navigate('/vehicle-models/create')}
+        disabled={isDeleting}
       >
-        Add New Model
+        <IoIosAddCircle />
       </button>
 
       <FilterControlModel
@@ -138,7 +149,6 @@ function VehicleModelComponent(): React.JSX.Element {
           onChange={(v) => setSortField(v as SortField)}
         />
         <SortSelect
-          label="Order"
           options={directionOptions}
           value={sortDir}
           onChange={(v) => setSortDir(v as SortDirection)}

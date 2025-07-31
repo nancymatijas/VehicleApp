@@ -1,6 +1,10 @@
 import { VehicleMake } from '../api/vehicleMakeApi';
 import { VehicleModelWithMake } from '../api/vehicleModelApi';
 
+interface DeleteResponse {
+  id: number;
+}
+
 export function handleEditMake(
   make: VehicleMake,
   navigate: (path: string) => void
@@ -10,7 +14,7 @@ export function handleEditMake(
 
 export async function handleDeleteMake(
   id: number,
-  deleteVehicleMake: (id: number) => Promise<any>
+  deleteVehicleMake: (id: number) => Promise<DeleteResponse>
 ): Promise<boolean> {
   if (!window.confirm('Are you sure you want to delete this manufacturer?')) {
     return false;
@@ -31,9 +35,13 @@ export function handleEditModel(
   navigate(`/vehicle-models/edit/${model.id}`);
 }
 
+interface DeleteModelResponse {
+  id: number;
+}
+
 export async function handleDeleteModel(
   id: number,
-  deleteVehicleModel: (id: number) => Promise<any>
+  deleteVehicleModel: (id: number) => Promise<DeleteModelResponse>
 ): Promise<boolean> {
   if (!window.confirm('Are you sure you want to delete this model?')) {
     return false;

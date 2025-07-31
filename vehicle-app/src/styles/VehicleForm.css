@@ -9,12 +9,11 @@
 .vehicle-form {
   max-width: 480px;
   width: 100%;
-  background-color: white;
+  background-color: #ffffff;
   padding: 24px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #212529;
+  color: #1E2633;
 }
 
 .vehicle-form__field {
@@ -31,6 +30,13 @@
   user-select: none;
 }
 
+.vehicle-form__actions{
+  display: flex;
+  justify-content: center;
+  align-items: center;;
+
+}
+
 .vehicle-form__input,
 .vehicle-form__select {
   padding: 10px 12px;
@@ -45,8 +51,8 @@
 
 .vehicle-form__input:focus,
 .vehicle-form__select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  border-color: #834C69;
+  box-shadow: 0 4px 10px rgba(181, 101, 119, 0.7);
   outline: none;
 }
 
@@ -73,7 +79,7 @@
 }
 
 .vehicle-form__button {
-  background-color: #007bff;
+  background-color: #834C69;
   color: #fff;
   padding: 10px 20px;
   border: none;
@@ -92,9 +98,9 @@
 
 .vehicle-form__button:hover:not(:disabled),
 .vehicle-form__button:focus:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #834C69;
+  transform: scale(1.05);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.4);
 }
 
 .vehicle-form__button:disabled,
@@ -104,15 +110,16 @@
 }
 
 .vehicle-form__button--cancel {
-  background-color: #6c757d;
-  margin-right: 0;
-  font-weight: 600;
+  margin-left: 10px;
+  background-color: #1E2633;
+  color: #fff;
 }
 
 .vehicle-form__button--cancel:hover:not(:disabled),
 .vehicle-form__button--cancel:focus:not(:disabled) {
-  background-color: #5a6268;
-  box-shadow: 0 0 0 3px rgba(90, 98, 104, 0.4);
+  background-color: #353D4A;
+  transform: scale(1.05);
+  outline: none;
 }
 
 /*

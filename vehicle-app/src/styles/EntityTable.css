@@ -1,78 +1,115 @@
 .entity-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   width: 100%;
-  border: 1px solid #e0e0e0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 0.95rem;
-  color: #333;
+  margin: 20px auto;
+  font-size: 16px;
+  color: #1E2633;
   min-width: 320px;
+  background-color: #f9fafb;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden; 
 }
 
 .entity-table th,
 .entity-table td {
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  text-align: left;
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
   vertical-align: middle;
   transition: background-color 0.15s ease;
-}
-
-.entity-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #495057;
   user-select: none;
 }
 
+.entity-table th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.entity-table th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.entity-table th {
+  background-color: #834C69; 
+  font-weight: 700;
+  color: #f9fafb;
+  border-bottom: 2px solid #834C69;
+  letter-spacing: 0.03em;
+}
+
+/*
 .entity-table tbody tr:hover {
-  background-color: #f1f3f5;
+  background-color: #e7eaf0;
+  cursor: pointer;
+}
+*/
+
+.btn-edit,
+.btn-delete {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.3s ease, transform 0.15s ease;
 }
 
 .btn-edit {
-  background-color: #007bff;
+  margin-right: 18px;
+  background-color: #1E2633;
   color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
+}
+
+.btn-delete {
+  background-color: #834C69;
+  color: #fff;
 }
 
 .btn-edit:hover:not(:disabled),
 .btn-edit:focus:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #353D4A;
+  transform: scale(1.05);
   outline: none;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
 }
 
 .btn-delete:hover:not(:disabled),
 .btn-delete:focus:not(:disabled) {
-  background-color: #a71d2a;
+  background-color: #834C69;
+  transform: scale(1.05);
   outline: none;
 }
 
 .btn-edit:disabled,
 .btn-delete:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 /*
 @media (max-width: 600px) {
+  .entity-table {
+    font-size: 0.85rem;
+  }
+
   .entity-table th,
   .entity-table td {
-    padding: 10px 8px;
-    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+  }
+
+  .entity-table tbody tr:hover {
+    background-color: #dfe3e8;
   }
 }
-*/
+  */
