@@ -146,12 +146,12 @@ function VehicleModelComponent(): React.JSX.Element {
           label="Sort By"
           options={sortOptions}
           value={sortField}
-          onChange={(v) => setSortField(v as SortField)}
+          onChange={(e) => setSortField(e.target.value as SortField)}
         />
         <SortSelect
           options={directionOptions}
           value={sortDir}
-          onChange={(v) => setSortDir(v as SortDirection)}
+          onChange={(e) => setSortDir(e.target.value as SortDirection)}
         />
       </div>
 

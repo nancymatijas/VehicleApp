@@ -45,7 +45,7 @@ const VehicleMakeEdit: React.FC = () => {
     setErrorMessage(null);
     try {
       await updateVehicleMake({ id: Number(id), ...data }).unwrap();
-      navigate('/vehiclemakes');
+      navigate('/vehicle-makes');
     } catch {
       setErrorMessage('Error saving data.');
     }

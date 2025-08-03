@@ -1,5 +1,7 @@
 import React from 'react';
 import { useForm, SubmitHandler, FieldValues, DefaultValues } from 'react-hook-form';
+import InputField from '../components/InputField';
+import SelectField from '../components/SelectField';
 import '../styles/VehicleForm.css';
 
 export interface Option {
@@ -44,7 +46,6 @@ function VehicleForm<T extends FieldValues>({
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
   } = useForm<T>({
     defaultValues: defaultValues as DefaultValues<T>,
@@ -60,106 +61,59 @@ function VehicleForm<T extends FieldValues>({
 
   return (
     <div className="vehicle-form-container">
-      <form
-        onSubmit={handleSubmit(wrappedSubmit)}
+      <form 
+        onSubmit={handleSubmit(wrappedSubmit)} 
         className="vehicle-form"
       >
-        {fields.map(({ label, name, required, type = 'text', placeholder }) => (
-          <div
-            key={name}
-            className="vehicle-form__field"
-          >
-            <label
-              htmlFor={name}
-              className="vehicle-form__label"
-            >
-              {label}
-            </label>
-            <input
-              id={name}
-              type={type}
-              placeholder={placeholder || label}
-              disabled={isSubmitting}
-              {...register(
-                name as any,
-                required ? { required: `${label} is required` } : {},
-              )}
-              className="vehicle-form__input"
-            />
-            {errors[name] && (
-              <p className="vehicle-form__error">
-                {(errors[name] as any).message}
-              </p>
-            )}
-          </div>
+        {fields.map(field => (
+          <InputField
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            type={field.type}
+            placeholder={field.placeholder}
+            required={field.required}
+            register={register}
+            disabled={isSubmitting}
+          />
         ))}
 
-        {selectFields && selectFields.map(({ label, name, options, required, disabled }) => (
-          <div
-            key={name}
-            className="vehicle-form__field"
-          >
-            <label
-              htmlFor={name}
-              className="vehicle-form__label"
-            >
-              {label}
-            </label>
-            <select
-              id={name}
-              disabled={disabled || isSubmitting}
-              {...register(
-                name as any,
-                required
-                  ? { required: `${label} is required`, valueAsNumber: true }
-                  : { valueAsNumber: true },
-              )}
-              className="vehicle-form__select"
-            >
-              <option value="">
-                {`Select ${label}`}
-              </option>
-              {options.map(({ label: optLabel, value }) => (
-                <option
-                  key={value}
-                  value={value}
-                >
-                  {optLabel}
-                </option>
-              ))}
-            </select>
-            {errors[name] && (
-              <p className="vehicle-form__error">
-                {(errors[name] as any).message}
-              </p>
-            )}
-          </div>
+        {selectFields?.map(selectField => (
+          <SelectField
+            key={selectField.name}
+            name={selectField.name}
+            label={selectField.label}
+            options={selectField.options}
+            required={selectField.required}
+            disabled={selectField.disabled || isSubmitting}
+            register={register}
+          />
         ))}
 
         <div className="vehicle-form__actions">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`vehicle-form__button${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
-        >
-          {isEditMode ? 'Save' : 'Add'}
-        </button>
-
-        {onCancel && (
           <button
-            type="button"
-            onClick={() => {
-              reset(defaultValues);
-              onCancel();
-            }}
+            type="submit"
             disabled={isSubmitting}
-            className="vehicle-form__button vehicle-form__button--cancel"
+            className={`vehicle-form__button${isSubmitting ? ' vehicle-form__button--disabled' : ''}`}
           >
-            Cancel
+            {isEditMode ? 'Save' : 'Add'}
           </button>
-        )}
 
+          {onCancel && (
+            <button
+              type="button"
+              onClick={() => {
+                reset(defaultValues);
+                onCancel();
+              }}
+              disabled={isSubmitting}
+              className="vehicle-form__button vehicle-form__button--cancel"
+            >
+              Cancel
+            </button>
+          )}
         </div>
+
         {errorMessage && (
           <div className="vehicle-form__error-message">
             {errorMessage}
