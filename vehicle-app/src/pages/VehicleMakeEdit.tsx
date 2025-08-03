@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   useGetVehicleMakesQuery,
   useUpdateVehicleMakeMutation,
@@ -52,7 +53,12 @@ const VehicleMakeEdit: React.FC = () => {
   };
 
   return (
-    <div className="container">
+    <motion.div 
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <h2 className="heading">Edit Vehicle Manufacturer</h2>
       <VehicleForm
         defaultValues={defaultValues}
@@ -63,7 +69,7 @@ const VehicleMakeEdit: React.FC = () => {
         isEditMode
         onCancel={() => navigate('/vehicle-makes')}
       />
-    </div>
+    </motion.div>
   );
 };
 

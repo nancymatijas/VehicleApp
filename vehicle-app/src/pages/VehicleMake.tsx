@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IoIosAddCircle } from "react-icons/io";
-import { FaSortAmountDownAlt, FaSortAmountUpAlt } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   useGetVehicleMakesQuery,
   useDeleteVehicleMakeMutation,
@@ -105,7 +105,12 @@ function VehicleMakeComponent(): React.JSX.Element {
   }
 
   return (
-    <div className="container">
+    <motion.div 
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <h1 className="heading">Vehicle Manufacturers</h1>
 
       <button
@@ -169,7 +174,7 @@ function VehicleMakeComponent(): React.JSX.Element {
           />
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
 

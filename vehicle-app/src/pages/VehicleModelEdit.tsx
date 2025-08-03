@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   useGetVehicleModelsQuery,
   useUpdateVehicleModelMutation,
@@ -65,7 +66,12 @@ const VehicleModelEdit: React.FC = () => {
   };
 
   return (
-    <div className="container">
+    <motion.div 
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <h2 className="heading">Edit Vehicle Model</h2>
       <VehicleForm
         defaultValues={defaultValues}
@@ -77,7 +83,7 @@ const VehicleModelEdit: React.FC = () => {
         isEditMode
         onCancel={() => navigate('/vehicle-models')}
       />
-    </div>
+    </motion.div>
   );
 };
 

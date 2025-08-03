@@ -25,7 +25,7 @@
 .vehicle-form__label {
   font-weight: 600;
   margin-bottom: 6px;
-  font-size: 1rem;
+  font-size: 17px;
   color: #343a40;
   user-select: none;
 }
@@ -40,7 +40,7 @@
 .vehicle-form__input,
 .vehicle-form__select {
   padding: 10px 12px;
-  font-size: 1rem;
+  font-size: 17px;
   border: 1.5px solid #ced4da;
   border-radius: 6px;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -66,7 +66,7 @@
 .vehicle-form__error {
   color: #dc3545;
   margin-top: 6px;
-  font-size: 0.875rem;
+  font-size: 0.15px;
   font-weight: 500;
 }
 
@@ -74,7 +74,7 @@
   color: #b02a37;
   margin-top: 16px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 17px;
   text-align: center;
 }
 
@@ -85,7 +85,7 @@
   border: none;
   cursor: pointer;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 15px;
   font-weight: 600;
   transition: background-color 0.25s ease;
   user-select: none;

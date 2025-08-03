@@ -9,7 +9,7 @@ body {
 
 /*-----------------------VehiclePage---------------------------------------*/
 .container-vehicle-page {
-  max-width: 900px;
+  max-width: 70%;
   margin: 40px auto;
   padding: 32px 40px;
   background-color: white;
@@ -24,7 +24,7 @@ body {
 
 .container-vehicle-page h1 {
   font-weight: 600;
-  font-size: 2.8rem;
+  font-size: 35px;
   margin-bottom: 16px;
   color: #1E2633;
 }
@@ -75,7 +75,7 @@ body {
 
 .info-section h2 {
   font-weight: 600;
-  font-size: 1.75rem;
+  font-size: 25px;
   margin-bottom: 12px;
   color: #1E2633;
 }
@@ -91,35 +91,24 @@ body {
   margin-bottom: 10px;
 }
 
-.contact-section {
-  margin-top: 48px;
-  background-color: #eef2f7;
-  padding: 24px 30px;
-  border-radius: 8px;
-  max-width: 700px;
-  width: 100%;
-  color: #555;
-  font-size: 1rem;
-  font-weight: 400;
-}
-
-.contact-section h3 {
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #1E2633;
-}
 
 /*-----------------------VehicleMake, VehicleModel---------------------*/
 .container {
-  padding: 16px;
+  max-width: 70%;
+  margin: 40px auto;
+  padding: 32px 40px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 18px;
 }
 
 .heading {
   margin-bottom: 16px;
-  display: flex; 
-/*  justify-content: center;
-  align-items: center;*/
-  font-size: 30px;
 }
 
 .sortControls {

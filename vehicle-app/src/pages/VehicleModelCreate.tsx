@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useCreateVehicleModelMutation } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
@@ -36,7 +37,12 @@ const VehicleModelCreate: React.FC = () => {
   };
 
   return (
-    <div className="container">
+    <motion.div 
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <h2 className="heading">Create Vehicle Model</h2>
       <VehicleForm
         defaultValues={{ name: '', abrv: '', make_id: 0 }}
@@ -48,7 +54,7 @@ const VehicleModelCreate: React.FC = () => {
         isEditMode={false}
         onCancel={() => navigate('/vehicle-models')}
       />
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   useGetVehicleModelsQuery,
   useDeleteVehicleModelMutation,
@@ -120,7 +121,12 @@ function VehicleModelComponent(): React.JSX.Element {
   }
 
   return (
-    <div className="container">
+    <motion.div 
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       <h1 className="heading">Vehicle Models</h1>
 
       <button
@@ -185,7 +191,7 @@ function VehicleModelComponent(): React.JSX.Element {
           />
         </>
       )}
-    </div>
+    </motion.div>
   );
 }
 
