@@ -1,7 +1,5 @@
 import React from 'react';
 import { useForm, SubmitHandler, FieldValues, DefaultValues } from 'react-hook-form';
-import { motion } from 'framer-motion';
-
 import InputField from '../components/InputField';
 import SelectField from '../components/SelectField';
 import '../styles/VehicleForm.css';

@@ -2,7 +2,6 @@ import React from 'react';
 import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
 import {
   useGetVehicleModelsQuery,
   useDeleteVehicleModelMutation,
@@ -11,16 +10,14 @@ import {
   SortDirection,
   FilterFieldModel,
 } from '../api/vehicleModelApi';
-
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
-
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlModel from '../components/FilterControlModel';
-import SortSelect, { SortOption } from '../components/SortSelect';
+import SortSelect from '../components/SortSelect';
 import { handleEditModel, handleDeleteModel } from '../utils/vehicleHandlers';
-
 import { usePersistentState } from '../utils/usePersistentState';
+import { sortOptionsModel, filterFieldOptionsModel, directionOptions } from '../utils/constants';
 
 const LS_KEY = 'vehicleModelListState';
 
@@ -41,24 +38,6 @@ const defaultUiState: VehicleModelListState = {
   filterField: 'name',
   filterValue: '',
 };
-
-const sortOptions: SortOption[] = [
-  { value: 'name', label: 'Model Name' },
-  { value: 'abrv', label: 'Abbreviation' },
-  { value: 'id', label: 'ID' },
-  { value: 'make_id', label: 'Manufacturer' },
-];
-
-const directionOptions: SortOption[] = [
-  { value: 'asc', label: 'ASC' },
-  { value: 'desc', label: 'DESC' },
-];
-
-const filterFieldOptionsModel: { value: FilterFieldModel; label: string }[] = [
-  { value: 'name', label: 'Model Name' },
-  { value: 'abrv', label: 'Abbreviation' },
-  { value: 'make_id', label: 'Manufacturer' },
-];
 
 function VehicleModelComponent(): React.JSX.Element {
   const navigate = useNavigate();
@@ -138,7 +117,7 @@ function VehicleModelComponent(): React.JSX.Element {
       <div className="sortControls">
         <SortSelect
           label="Sort By"
-          options={sortOptions}
+          options={sortOptionsModel}
           value={sortField}
           onChange={(e) => setUiState(s => ({ ...s, sortField: e.target.value as SortField }))}
         />

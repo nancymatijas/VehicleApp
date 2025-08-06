@@ -2,23 +2,20 @@ import React from 'react';
 import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
 import {
   useGetVehicleMakesQuery,
   useDeleteVehicleMakeMutation,
   VehicleMake,
   SortField,
-  SortDirection,
+  SortDirection 
 } from '../api/vehicleMakeApi';
-
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlMake, { FilterFieldMake } from '../components/FilterControlMake';
-import SortSelect, { SortOption } from '../components/SortSelect';
-
+import SortSelect from '../components/SortSelect';
 import { handleEditMake, handleDeleteMake } from '../utils/vehicleHandlers';
-
 import { usePersistentState } from '../utils/usePersistentState';
+import { sortOptionsMake, filterFieldOptionsMake, directionOptions } from '../utils/constants';
 
 const LS_KEY = 'vehicleMakeListState';
 
@@ -39,22 +36,6 @@ const defaultUiState: VehicleMakeListState = {
   filterField: 'name',
   filterValue: '',
 };
-
-const sortOptions: SortOption[] = [
-  { value: 'name', label: 'Name' },
-  { value: 'abrv', label: 'Abbreviation' },
-  { value: 'id', label: 'ID' },
-];
-
-const directionOptions: SortOption[] = [
-  { value: 'asc', label: 'ASC' },
-  { value: 'desc', label: 'DESC' },
-];
-
-const filterFieldOptionsMake: { value: FilterFieldMake; label: string }[] = [
-  { value: 'name', label: 'Name' },
-  { value: 'abrv', label: 'Abbreviation' },
-];
 
 function VehicleMakeComponent(): React.JSX.Element {
   const navigate = useNavigate();
@@ -118,7 +99,7 @@ function VehicleMakeComponent(): React.JSX.Element {
       <div className="sortControls">
         <SortSelect
           label="Sort By"
-          options={sortOptions}
+          options={sortOptionsMake}
           value={sortField}
           onChange={(e) => setUiState(s => ({ ...s, sortField: e.target.value as SortField }))}
         />

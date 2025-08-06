@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  useGetVehicleMakesQuery,
-  useUpdateVehicleMakeMutation,
-  VehicleMake,
-} from '../api/vehicleMakeApi';
+import { useGetVehicleMakesQuery, useUpdateVehicleMakeMutation, VehicleMake } from '../api/vehicleMakeApi';
 import VehicleForm, { FieldConfig } from '../components/VehicleForm';
 
 const fields: FieldConfig[] = [

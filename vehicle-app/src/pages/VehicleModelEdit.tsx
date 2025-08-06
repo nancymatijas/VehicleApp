@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  useGetVehicleModelsQuery,
-  useUpdateVehicleModelMutation,
-  VehicleModel,
-} from '../api/vehicleModelApi';
+import { useGetVehicleModelsQuery, useUpdateVehicleModelMutation, VehicleModel } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
 
