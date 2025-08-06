@@ -24,7 +24,7 @@
 
 .vehicle-form__label {
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   font-size: 17px;
   color: #343a40;
   user-select: none;
@@ -63,21 +63,6 @@
   color: #6c757d;
 }
 
-.vehicle-form__error {
-  color: #dc3545;
-  margin-top: 6px;
-  font-size: 0.15px;
-  font-weight: 500;
-}
-
-.vehicle-form__error-message {
-  color: #b02a37;
-  margin-top: 16px;
-  font-weight: 700;
-  font-size: 17px;
-  text-align: center;
-}
-
 .vehicle-form__button {
   background-color: #834C69;
   color: #fff;
@@ -85,7 +70,7 @@
   border: none;
   cursor: pointer;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   transition: background-color 0.25s ease;
   user-select: none;
@@ -94,6 +79,7 @@
   justify-content: center;
   min-width: 90px;
   margin-right: 8px;
+  margin-top: 20px;
 }
 
 .vehicle-form__button:hover:not(:disabled),
@@ -123,6 +109,21 @@
 }
 
 /*
+.vehicle-form__error {
+  color: #dc3545;
+  margin-top: 6px;
+  font-size: 0.15px;
+  font-weight: 500;
+}
+
+.vehicle-form__error-message {
+  color: #b02a37;
+  margin-top: 16px;
+  font-weight: 700;
+  font-size: 17px;
+  text-align: center;
+}
+
 @media (max-width: 480px) {
   .vehicle-form {
     padding: 0 12px;

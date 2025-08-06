@@ -118,11 +118,6 @@ body {
   align-items: center;
 }
 
-.errorMessage {
-  color: red;
-  margin-bottom: 12px;
-}
-
 .vehicle-add__button {
   color: #1E2633;
   background-color: #f9fafb;
@@ -147,3 +142,10 @@ body {
   outline: none;
   box-shadow: 0 4px 10px rgba(181, 101, 119, 0.7);
 }
+
+/*
+.errorMessage {
+  color: red;
+  margin-bottom: 12px;
+}
+*/

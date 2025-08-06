@@ -43,7 +43,7 @@ const VehicleModelCreate: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <h2 className="heading">Create Vehicle Model</h2>
+      <h1 className="heading">Create Vehicle Model</h1>
       <VehicleForm
         defaultValues={{ name: '', abrv: '', make_id: 0 }}
         fields={fields}

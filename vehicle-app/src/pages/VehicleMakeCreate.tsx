@@ -30,7 +30,8 @@ const VehicleMakeCreate: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
-    >      <h2 className="heading">Create Vehicle Manufacturer</h2>
+    >      
+      <h1 className="heading">Create Vehicle Manufacturer</h1>
       <VehicleForm
         defaultValues={{ name: '', abrv: '' }}
         fields={fields}
