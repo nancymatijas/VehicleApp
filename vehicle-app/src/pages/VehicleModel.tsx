@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
 import {
   useGetVehicleModelsQuery,
   useDeleteVehicleModelMutation,
@@ -10,12 +11,16 @@ import {
   SortDirection,
   FilterFieldModel,
 } from '../api/vehicleModelApi';
+
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
+
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlModel from '../components/FilterControlModel';
 import SortSelect, { SortOption } from '../components/SortSelect';
 import { handleEditModel, handleDeleteModel } from '../utils/vehicleHandlers';
+
+import { usePersistentState } from '../utils/usePersistentState';
 
 const LS_KEY = 'vehicleModelListState';
 
@@ -28,24 +33,14 @@ interface VehicleModelListState {
   filterValue: string;
 }
 
-function getInitialState(): VehicleModelListState {
-  try {
-    const stored = localStorage.getItem(LS_KEY);
-    if (stored) {
-      return JSON.parse(stored) as VehicleModelListState;
-    }
-  } catch {
-  }
-
-  return {
-    sortField: 'name' as SortField,
-    sortDir: 'asc' as SortDirection,
-    page: 1,
-    pageSize: 5,
-    filterField: 'name' as FilterFieldModel,
-    filterValue: '',
-  };
-}
+const defaultUiState: VehicleModelListState = {
+  sortField: 'name',
+  sortDir: 'asc',
+  page: 1,
+  pageSize: 5,
+  filterField: 'name',
+  filterValue: '',
+};
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Model Name' },
@@ -67,26 +62,18 @@ const filterFieldOptionsModel: { value: FilterFieldModel; label: string }[] = [
 
 function VehicleModelComponent(): React.JSX.Element {
   const navigate = useNavigate();
-  const initialState = getInitialState();
 
-  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
-  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
-  const [page, setPage] = useState<number>(initialState.page);
-  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
-  const [filterField, setFilterField] = useState<FilterFieldModel>(initialState.filterField);
-  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
+  const [uiState, setUiState] = usePersistentState<VehicleModelListState>(
+    LS_KEY,
+    defaultUiState,
+  );
 
-  useEffect(() => {
-    localStorage.setItem(
-      LS_KEY,
-      JSON.stringify({ sortField, sortDir, page, pageSize, filterField, filterValue }),
-    );
-  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
+  const { sortField, sortDir, page, pageSize, filterField, filterValue } = uiState;
 
   const { data: makes, isLoading: isLoadingMakes } = useGetVehicleMakesQuery();
 
   const manufacturerOptions = makes
-    ? makes.map((make) => ({ label: make.name, value: make.id.toString() }))
+    ? makes.map(make => ({ label: make.name, value: make.id.toString() }))
     : [];
 
   const queryParams = {
@@ -117,11 +104,11 @@ function VehicleModelComponent(): React.JSX.Element {
   }
 
   async function onDelete(id: number): Promise<void> {
-    await handleDeleteModel(id, (id) => deleteVehicleModel(id).unwrap());
+    await handleDeleteModel(id, id => deleteVehicleModel(id).unwrap());
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="container"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -134,6 +121,7 @@ function VehicleModelComponent(): React.JSX.Element {
         className="vehicle-add__button"
         onClick={() => navigate('/vehicle-models/create')}
         disabled={isDeleting}
+        aria-label="Add new vehicle model"
       >
         <IoIosAddCircle />
       </button>
@@ -141,8 +129,8 @@ function VehicleModelComponent(): React.JSX.Element {
       <FilterControlModel
         filterField={filterField}
         filterValue={filterValue}
-        onFilterFieldChange={setFilterField}
-        onFilterValueChange={setFilterValue}
+        onFilterFieldChange={(field) => setUiState(s => ({ ...s, filterField: field, page: 1 }))}
+        onFilterValueChange={(value) => setUiState(s => ({ ...s, filterValue: value, page: 1 }))}
         filterFieldOptions={filterFieldOptionsModel}
         manufacturerOptions={manufacturerOptions}
       />
@@ -152,12 +140,12 @@ function VehicleModelComponent(): React.JSX.Element {
           label="Sort By"
           options={sortOptions}
           value={sortField}
-          onChange={(e) => setSortField(e.target.value as SortField)}
+          onChange={(e) => setUiState(s => ({ ...s, sortField: e.target.value as SortField }))}
         />
         <SortSelect
           options={directionOptions}
           value={sortDir}
-          onChange={(e) => setSortDir(e.target.value as SortDirection)}
+          onChange={(e) => setUiState(s => ({ ...s, sortDir: e.target.value as SortDirection }))}
         />
       </div>
 
@@ -178,16 +166,15 @@ function VehicleModelComponent(): React.JSX.Element {
           <PaginationControl
             page={page}
             pageSize={pageSize}
-            onPrev={() => setPage((p) => Math.max(p - 1, 1))}
+            onPrev={() => setUiState(s => ({ ...s, page: Math.max(s.page - 1, 1) }))}
             onNext={() => {
-              if (models.length === pageSize) setPage((p) => p + 1);
+              if (models.length === pageSize) {
+                setUiState(s => ({ ...s, page: s.page + 1 }));
+              }
             }}
             disablePrev={page === 1}
             disableNext={!models || models.length < pageSize}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
+            onPageSizeChange={(size) => setUiState(s => ({ ...s, pageSize: size, page: 1 }))}
           />
         </>
       )}

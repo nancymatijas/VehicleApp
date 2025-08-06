@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { IoIosAddCircle } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
 import {
   useGetVehicleMakesQuery,
   useDeleteVehicleMakeMutation,
@@ -9,11 +10,15 @@ import {
   SortField,
   SortDirection,
 } from '../api/vehicleMakeApi';
+
 import PaginationControl from '../components/PaginationControl';
 import EntityTable, { Column } from '../components/EntityTable';
 import FilterControlMake, { FilterFieldMake } from '../components/FilterControlMake';
 import SortSelect, { SortOption } from '../components/SortSelect';
+
 import { handleEditMake, handleDeleteMake } from '../utils/vehicleHandlers';
+
+import { usePersistentState } from '../utils/usePersistentState';
 
 const LS_KEY = 'vehicleMakeListState';
 
@@ -26,24 +31,14 @@ interface VehicleMakeListState {
   filterValue: string;
 }
 
-function getInitialState(): VehicleMakeListState {
-  try {
-    const stored = localStorage.getItem(LS_KEY);
-    if (stored) {
-      return JSON.parse(stored) as VehicleMakeListState;
-    }
-  } catch {
-  }
-
-  return {
-    sortField: 'name' as SortField,
-    sortDir: 'asc' as SortDirection,
-    page: 1,
-    pageSize: 5,
-    filterField: 'name' as FilterFieldMake,
-    filterValue: '',
-  };
-}
+const defaultUiState: VehicleMakeListState = {
+  sortField: 'name',
+  sortDir: 'asc',
+  page: 1,
+  pageSize: 5,
+  filterField: 'name',
+  filterValue: '',
+};
 
 const sortOptions: SortOption[] = [
   { value: 'name', label: 'Name' },
@@ -63,21 +58,10 @@ const filterFieldOptionsMake: { value: FilterFieldMake; label: string }[] = [
 
 function VehicleMakeComponent(): React.JSX.Element {
   const navigate = useNavigate();
-  const initialState = getInitialState();
 
-  const [sortField, setSortField] = useState<SortField>(initialState.sortField);
-  const [sortDir, setSortDir] = useState<SortDirection>(initialState.sortDir);
-  const [page, setPage] = useState<number>(initialState.page);
-  const [pageSize, setPageSize] = useState<number>(initialState.pageSize);
-  const [filterField, setFilterField] = useState<FilterFieldMake>(initialState.filterField);
-  const [filterValue, setFilterValue] = useState<string>(initialState.filterValue);
+  const [uiState, setUiState] = usePersistentState<VehicleMakeListState>(LS_KEY, defaultUiState);
 
-  useEffect(() => {
-    localStorage.setItem(
-      LS_KEY,
-      JSON.stringify({ sortField, sortDir, page, pageSize, filterField, filterValue }),
-    );
-  }, [sortField, sortDir, page, pageSize, filterField, filterValue]);
+  const { sortField, sortDir, page, pageSize, filterField, filterValue } = uiState;
 
   const { data: makes, error, isLoading } = useGetVehicleMakesQuery({
     page,
@@ -118,6 +102,7 @@ function VehicleMakeComponent(): React.JSX.Element {
         className="vehicle-add__button"
         onClick={() => navigate('/vehicle-makes/create')}
         disabled={isDeleting}
+        aria-label="Add new vehicle make"
       >
         <IoIosAddCircle />
       </button>
@@ -125,8 +110,8 @@ function VehicleMakeComponent(): React.JSX.Element {
       <FilterControlMake
         filterField={filterField}
         filterValue={filterValue}
-        onFilterFieldChange={setFilterField}
-        onFilterValueChange={setFilterValue}
+        onFilterFieldChange={(field) => setUiState(s => ({ ...s, filterField: field, page: 1 }))}
+        onFilterValueChange={(value) => setUiState(s => ({ ...s, filterValue: value, page: 1 }))}
         filterFieldOptions={filterFieldOptionsMake}
       />
 
@@ -135,12 +120,12 @@ function VehicleMakeComponent(): React.JSX.Element {
           label="Sort By"
           options={sortOptions}
           value={sortField}
-          onChange={(e) => setSortField(e.target.value as SortField)}
+          onChange={(e) => setUiState(s => ({ ...s, sortField: e.target.value as SortField }))}
         />
         <SortSelect
           options={directionOptions}
           value={sortDir}
-          onChange={(e) => setSortDir(e.target.value as SortDirection)}
+          onChange={(e) => setUiState(s => ({ ...s, sortDir: e.target.value as SortDirection }))}
         />
       </div>
 
@@ -161,16 +146,13 @@ function VehicleMakeComponent(): React.JSX.Element {
           <PaginationControl
             page={page}
             pageSize={pageSize}
-            onPrev={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
+            onPrev={() => setUiState(s => ({ ...s, page: Math.max(1, s.page - 1) }))}
             onNext={() => {
-              if (makes.length === pageSize) setPage((currentPage) => currentPage + 1);
+              if (makes.length === pageSize) setUiState(s => ({ ...s, page: s.page + 1 }));
             }}
             disablePrev={page === 1}
             disableNext={!makes || makes.length < pageSize}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
+            onPageSizeChange={(size) => setUiState(s => ({ ...s, pageSize: size, page: 1 }))}
           />
         </>
       )}
