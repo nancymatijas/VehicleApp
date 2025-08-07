@@ -124,3 +124,58 @@
   box-shadow: 0 4px 10px rgba(181, 101, 119, 0.7);
   background-color: #ffffff;
 }
+
+
+@media (max-width: 768px) {
+  .pagination-control {
+    padding: 15px 10px;
+    gap: 10px;
+  }
+
+  .pagination-control__navigation {
+    flex-wrap: wrap;              
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .pagination-control__button {
+    padding: 5px 10px;
+    font-size: 15px;
+    min-width: 40px;            
+  }
+
+  .pagination-control__page-info {
+    font-size: 15px;
+    min-width: auto;
+    padding: 0 5px;
+  }
+
+  .pagination-control__label {
+    font-size: 12px;
+  }
+
+  .pagination-control__select {
+    min-width: 30%;
+    width: 35%;
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+
+  .sort-select {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+    padding: 10px 15px;
+  }
+
+  .sort-select__label {
+    font-size: 15px;
+  }
+
+  .sort-select__select {
+    min-width: 100%;
+    width: 100%;
+    font-size: 13px;
+    padding: 5px 10px;
+  }
+}

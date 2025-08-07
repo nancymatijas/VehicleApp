@@ -143,9 +143,61 @@ body {
   box-shadow: 0 4px 10px rgba(181, 101, 119, 0.7);
 }
 
-/*
-.errorMessage {
-  color: red;
-  margin-bottom: 12px;
+@media (max-width: 768px) {
+  .container-vehicle-page,
+  .container {
+    max-width: 90%;       
+    padding: 15px 15px;   
+  }
+
+  .container-vehicle-page h1 {
+    font-size: 25px;     
+  }
+
+  .container-vehicle-page p {
+    font-size: 15px;      
+    max-width: 100%;      
+    margin-bottom: 25px;
+  }
+
+  .vehicle-buttons {
+    flex-direction: column;  
+    gap: 10px;
+    align-items: stretch;    
+  }
+
+  .button-vehicle-page {
+    width: 100%;           
+    min-width: auto;       
+    font-size: 15px;       
+    padding: 10px 0;
+  }
+
+  .info-section {
+    max-width: 100%;
+    font-size: 15px;       
+  }
+
+  .info-section h2 {
+    font-size: 20px;       
+  }
+
+  .sortControls {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .vehicle-add__button {
+    width: 100%;
+    font-size: 20px;
+    padding: 5px 0;
+  }
+
+  .heading{
+    margin-top: 50px;
+    font-size: 25px;
+  }
+
 }
-*/
+

@@ -13,7 +13,7 @@ const VehiclePage: React.FC = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <h1>Vehicle Management</h1>
+      <h1 className="heading">Vehicle Management</h1>
       <p>
         Welcome to the Vehicle Management application. Here you can view, add, edit, and delete vehicle makes and models. Use the options below to get started.
       </p>

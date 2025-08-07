@@ -83,26 +83,69 @@
   box-shadow: none;
   transform: none;
 }
-/*
-@media (max-width: 600px) {
-  .entity-table {
-    font-size: 0.85rem;
+
+
+
+@media (max-width: 768px) {
+
+  .entity-table-wrapper, 
+  .container {
+    width: 90vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
-  .entity-table th,
+  .entity-table thead { 
+    display: none; 
+  }
+
+  .entity-table tr {
+    display: block;
+    width: 100%;
+    margin: 5px 5px 5px 5px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(131,76,105,0.06);
+    max-width: 80vw;    
+    box-sizing: border-box;
+  }
+
   .entity-table td {
-    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    padding: 4px 4px;
+    background: none;
+    white-space: normal;
+  }
+
+  .entity-table td:last-child {
+    border-bottom: none;
+  }
+
+  .entity-table td::before {
+    content: attr(data-label);
+    font-weight: 500;
+    color: #834C69;
+    font-size: 12px;
+    min-width: 85px;
+    flex-shrink: 0;
+    opacity: 0.93;
   }
 
   .btn-edit,
   .btn-delete {
-    display: block;
-    width: 100%;
-    margin: 6px 0;
-  }
-
-  .entity-table tbody tr:hover {
-    background-color: #dfe3e8;
+    padding: 3px 5px;
+    margin: 0;
+    font-size: 12px;
+    min-width: 0;
+    border-radius: 4px;
+    box-shadow: none;
   }
 }
-*/
+

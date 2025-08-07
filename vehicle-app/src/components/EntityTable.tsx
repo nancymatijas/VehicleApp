@@ -43,7 +43,7 @@ function EntityTable<T extends { id: number }>({
       <thead>
         <tr>
           {columns.map((col) => (
-            <th key={typeof col.accessor === 'string' ? col.accessor : undefined} style={{ width: col.width }}>
+            <th key={typeof col.accessor === 'string' ? col.accessor : undefined}>
               {col.header}
             </th>
           ))}
@@ -55,18 +55,16 @@ function EntityTable<T extends { id: number }>({
         {data.length > 0 ? (
           data.map((row) => (
             <tr key={row.id}>
-              {columns.map((col) => {
-                const value =
-                  typeof col.accessor === 'function'
-                    ? col.accessor(row)
-                    : row[col.accessor];
+              {columns.map((col, colIndex) => {
+                const value = typeof col.accessor === 'function' ? col.accessor(row) : row[col.accessor];
+                const key = typeof col.accessor === 'string' ? col.accessor : colIndex;
                 return (
-                  <td key={typeof col.accessor === 'string' ? col.accessor : undefined}>
+                  <td key={key} data-label={col.header}>
                     {renderCellValue(value)}
                   </td>
                 );
               })}
-              <td>
+              <td data-label="Actions">
                 <button
                   onClick={() => onEdit(row)}
                   disabled={editDisabled}
@@ -88,7 +86,7 @@ function EntityTable<T extends { id: number }>({
           ))
         ) : (
           <tr>
-            <td colSpan={columns.length + 1} style={{ textAlign: 'center' }}>
+            <td colSpan={columns.length + 1}>
               No records
             </td>
           </tr>

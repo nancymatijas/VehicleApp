@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
+  height: 60px;
   background-color: #F5F7FA;;
   color: #834C69;
   display: flex;
@@ -82,4 +82,29 @@
 .navbar-link.active::after {
   width: 100%;
   background-color: #1E2633; 
+}
+
+
+@media (max-width: 768px) {
+  .navbar {
+    height: auto; 
+    padding: 10px 10px;
+    flex-wrap: wrap; 
+  }
+
+  .navbar-logo {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .navbar-links {
+    flex: 1 1 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .navbar-link {
+    margin: 5px 10px;
+    font-size: 15px;
+  }
 }
