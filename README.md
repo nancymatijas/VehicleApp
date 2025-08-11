@@ -70,6 +70,3 @@ All data is stored and accessed through RTK Query services, communicating with t
 All CRUD operations, sorting, filtering, and paging are performed via REST API.
 
 ---
-
-## Project Structure
-
