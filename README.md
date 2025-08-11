@@ -29,12 +29,11 @@ This application is developed as a test project using **React** and **TypeScript
 ## Project Structure
 
 src/
-|-- components/ # Global reusable components
-|-- pages/ # Route-based pages
-|-- store/ # Redux configuration and slices
-|-- api/ # Backend communication services (RTK Query)
-|-- utils/ # Utility functions and types
-
+- **components/** — reusable UI elements used across the project  
+- **pages/** — views connected to routes  
+- **store/** — global state management with Redux Toolkit  
+- **api/** — RTK Query services for REST API interaction  
+- **utils/** — helper functions, constants, and TypeScript types  
 
 File and component names follow the [Airbnb naming convention](https://github.com/airbnb/javascript/tree/master/react#naming).
 
