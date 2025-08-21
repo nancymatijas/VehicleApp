@@ -3,12 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCreateVehicleModelMutation } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
-import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
-
-const fields: FieldConfig[] = [
-  { label: 'Model Name', name: 'name', required: true },
-  { label: 'Abbreviation', name: 'abrv' },
-];
+import VehicleForm, { SelectFieldConfig, Option } from '../components/VehicleForm';
+import { fields } from '../utils/constants';
 
 const VehicleModelCreate: React.FC = () => {
   const navigate = useNavigate();

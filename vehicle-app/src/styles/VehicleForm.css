@@ -108,22 +108,13 @@
   outline: none;
 }
 
-/*
-.vehicle-form__error {
-  color: #dc3545;
-  margin-top: 6px;
-  font-size: 0.15px;
-  font-weight: 500;
+.error-message {
+  color: red;
+  font-size: 15px;
+  margin-top: 4px;
 }
 
-.vehicle-form__error-message {
-  color: #b02a37;
-  margin-top: 16px;
-  font-weight: 700;
-  font-size: 17px;
-  text-align: center;
-}
-*/
+
 @media (max-width: 768px) {
   .vehicle-form-container {
     padding: 10px 10px;

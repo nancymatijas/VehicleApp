@@ -1,6 +1,23 @@
 import { SortOption } from '../components/SortSelect';
 import { FilterFieldMake } from '../components/FilterControlMake';
 import { FilterFieldModel } from '../components/FilterControlModel';
+import { FieldConfig } from '../components/VehicleForm';
+
+export const fields: FieldConfig[] = [
+  { 
+    label: 'Name', 
+    name: 'name', 
+    required: true,
+    minLength: 2,
+    maxLength: 20,
+  pattern: /^[A-Za-z0-9 \-]+$/,
+  },
+  { 
+    label: 'Abbreviation', 
+    name: 'abrv',
+    maxLength: 10,
+  },
+];
 
 export const sortOptionsMake: SortOption[] = [
   { value: 'name', label: 'Name' },

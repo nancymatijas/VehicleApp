@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCreateVehicleMakeMutation } from '../api/vehicleMakeApi';
-import VehicleForm, { FieldConfig } from '../components/VehicleForm';
-
-const fields: FieldConfig[] = [
-  { label: 'Name', name: 'name', required: true },
-  { label: 'Abbreviation', name: 'abrv' },
-];
+import VehicleForm from '../components/VehicleForm';
+import { fields } from '../utils/constants';
 
 const VehicleMakeCreate: React.FC = () => {
   const navigate = useNavigate();

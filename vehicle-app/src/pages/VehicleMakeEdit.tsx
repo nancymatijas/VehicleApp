@@ -2,12 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGetVehicleMakeByIdQuery, useUpdateVehicleMakeMutation, VehicleMake } from '../api/vehicleMakeApi';
-import VehicleForm, { FieldConfig } from '../components/VehicleForm';
-
-const fields: FieldConfig[] = [
-  { label: 'Name', name: 'name', required: true },
-  { label: 'Abbreviation', name: 'abrv' },
-];
+import VehicleForm from '../components/VehicleForm';
+import { fields } from '../utils/constants';
 
 const VehicleMakeEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
