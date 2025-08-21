@@ -76,6 +76,11 @@ export const vehicleMakeApi = createApi({
           : [{ type: 'VehicleMake', id: 'LIST' }],
     }),
 
+    getVehicleMakeById: builder.query<VehicleMake[], number>({
+      query: (id) => `VehicleMake?id=eq.${id}`,
+      providesTags: (result, error, id) => [{ type: 'VehicleMake', id }],
+    }),
+
     createVehicleMake: builder.mutation<VehicleMake, Omit<VehicleMake, 'id'>>({
       query: (newMake) => ({
         url: 'VehicleMake',
@@ -106,6 +111,7 @@ export const vehicleMakeApi = createApi({
 
 export const {
   useGetVehicleMakesQuery,
+  useGetVehicleMakeByIdQuery,
   useCreateVehicleMakeMutation,
   useUpdateVehicleMakeMutation,
   useDeleteVehicleMakeMutation,

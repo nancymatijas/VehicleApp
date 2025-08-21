@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGetVehicleModelsQuery, useUpdateVehicleModelMutation, VehicleModel } from '../api/vehicleModelApi';
+import { useGetVehicleModelByIdQuery, useUpdateVehicleModelMutation, VehicleModel } from '../api/vehicleModelApi';
 import { useGetVehicleMakesQuery } from '../api/vehicleMakeApi';
 import VehicleForm, { FieldConfig, SelectFieldConfig, Option } from '../components/VehicleForm';
 
@@ -15,29 +15,23 @@ const VehicleModelEdit: React.FC = () => {
   const navigate = useNavigate();
   const [defaultValues, setDefaultValues] = useState<{ name: string; abrv: string; make_id: number } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { data: models, isLoading: isLoadingModels, error: errorModels } = useGetVehicleModelsQuery({
-    page: 1,
-    pageSize: 1000,
-    field: 'id',
-    direction: 'asc',
-  });
+  const { data, isLoading, error } = useGetVehicleModelByIdQuery(Number(id));
   const { data: makes, isLoading: isLoadingMakes } = useGetVehicleMakesQuery();
   const [updateVehicleModel, { isLoading: isUpdating }] = useUpdateVehicleModelMutation();
 
   useEffect(() => {
-    if (models && id) {
-      const doc = models.find((m) => m.id === Number(id));
-      if (doc) {
-        setDefaultValues({ name: doc.name, abrv: doc.abrv, make_id: doc.make_id });
-      } else {
-        setErrorMessage('Model not found');
-      }
+    if (data && data.length > 0) {
+      const doc = data[0];
+      setDefaultValues({ name: doc.name, abrv: doc.abrv, make_id: doc.make_id });
+      setErrorMessage(null);
+    } else if (!isLoading) {
+      setErrorMessage('Model not found');
     }
-  }, [models, id]);
+  }, [data, isLoading]);
 
   if (!id) return <div>Invalid ID</div>;
-  if (isLoadingModels) return <div>Loading model data...</div>;
-  if (errorModels) return <div>Error loading model data.</div>;
+  if (isLoading) return <div>Loading model data...</div>;
+  if (error) return <div>Error loading model data.</div>;
   if (!defaultValues) return <div>{errorMessage || 'Loading...'}</div>;
 
   const makesOptions: Option[] = makes ? makes.map((m) => ({ label: m.name, value: m.id })) : [];

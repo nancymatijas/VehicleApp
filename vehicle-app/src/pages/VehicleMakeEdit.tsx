@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useGetVehicleMakesQuery, useUpdateVehicleMakeMutation, VehicleMake } from '../api/vehicleMakeApi';
+import { useGetVehicleMakeByIdQuery, useUpdateVehicleMakeMutation, VehicleMake } from '../api/vehicleMakeApi';
 import VehicleForm, { FieldConfig } from '../components/VehicleForm';
 
 const fields: FieldConfig[] = [
@@ -14,24 +14,18 @@ const VehicleMakeEdit: React.FC = () => {
   const navigate = useNavigate();
   const [defaultValues, setDefaultValues] = useState<{ name: string; abrv: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { data: makes, isLoading, error } = useGetVehicleMakesQuery({
-    page: 1,
-    pageSize: 1000,
-    field: 'id',        
-    direction: 'asc'
-    });
+  const { data, isLoading, error } = useGetVehicleMakeByIdQuery(Number(id));
+  const make = data && data.length > 0 ? data[0] : undefined;
   const [updateVehicleMake, { isLoading: isUpdating }] = useUpdateVehicleMakeMutation();
 
   useEffect(() => {
-    if (makes && id) {
-      const make = makes.find((m) => m.id === Number(id));
-      if (make) {
-        setDefaultValues({ name: make.name, abrv: make.abrv });
-      } else {
-        setErrorMessage('Manufacturer not found');
-      }
+    if (make) {
+      setDefaultValues({ name: make.name, abrv: make.abrv });
+      setErrorMessage(null);
+    } else if (!isLoading) {
+      setErrorMessage('Manufacturer not found');
     }
-  }, [makes, id]);
+  }, [make, isLoading]);
 
   if (!id) return <div>Invalid ID</div>;
   if (isLoading) return <div>Loading...</div>;
